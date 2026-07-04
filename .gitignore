@@ -1,0 +1,8 @@
+# Folders
+
+## of IDEs
+.vscode/
+
+## of Compiled source files
+bin/
+obj/
