@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Substance\Substance.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="SDL3-CS.Android" Version="3.4.10.5" />
+  </ItemGroup>
+
 </Project>

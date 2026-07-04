@@ -1,9 +1,13 @@
-﻿namespace Test.Desktop;
+﻿using Substance;
+
+namespace Test.Desktop;
 
 internal class Program
 {
     public static void Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
+        var app = new Application();
+
+        app.Exec();
     }
 }
