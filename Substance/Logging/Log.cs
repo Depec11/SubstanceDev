@@ -8,11 +8,10 @@ public static class Log
     private static readonly SimpleLogger s_logger;
 
     static Log() {
-        if (!OperatingSystem.IsAndroid() && (OperatingSystem.IsLinux() || OperatingSystem.IsWindows()))
-        {
-            Console.InputEncoding = Encoding.UTF8;
-            Console.OutputEncoding = Encoding.UTF8;
-        }
+#if !ANDROID
+        Console.InputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = Encoding.UTF8;
+#endif
         
 
         s_logger = new SimpleLogger();

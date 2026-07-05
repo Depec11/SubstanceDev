@@ -6,3 +6,8 @@
 ## of Compiled source files
 bin/
 obj/
+
+# Files
+
+## of Log files
+*.log

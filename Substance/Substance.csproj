@@ -6,6 +6,24 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <BuildTarget Condition="'$(BuildTarget)' == '' AND '$(OS)' == 'Windows_NT'">Windows</BuildTarget>
+    <BuildTarget Condition="'$(BuildTarget)' == '' AND '$(OS)' == 'Unix'">Linux</BuildTarget>
+    <BuildTarget Condition="'$(BuildTarget)' == ''">Windows</BuildTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildTarget)' == 'Windows'">
+    <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildTarget)' == 'Linux'">
+    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(BuildTarget)' == 'Android'">
+    <DefineConstants>ANDROID;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="SDL3-CS" Version="3.5.0-preview.20260205-174352" />
     <PackageReference Include="SDL3-CS.Native" Version="3.5.0-preview.20260205-174353" />

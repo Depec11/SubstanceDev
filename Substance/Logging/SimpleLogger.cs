@@ -25,18 +25,11 @@ public class SimpleLogger : ILogger, IDisposable
 
         string fullPath;
 
-        if (OperatingSystem.IsAndroid())
-        {
-            fullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), FilePath);
-        }
-        else if (OperatingSystem.IsLinux() || OperatingSystem.IsWindows())
-        {
-            fullPath = Path.GetFullPath(FilePath);
-        }
-        else
-        {
-            return;
-        }
+#if ANDROID
+        fullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), FilePath);
+#else
+        fullPath = Path.GetFullPath(FilePath);
+#endif
 
         var directory = Path.GetDirectoryName(fullPath);
 
@@ -67,23 +60,21 @@ public class SimpleLogger : ILogger, IDisposable
 
         if (ConsoleLogLevel <= level)
         {
-            if (!OperatingSystem.IsAndroid() && (OperatingSystem.IsLinux() || OperatingSystem.IsWindows()))
-            {
-                var originalColor = Console.ForegroundColor;
-                Console.ForegroundColor = level switch {
-                    LogLevel.Error => ConsoleColor.Red,
-                    LogLevel.Warning => ConsoleColor.Yellow,
-                    LogLevel.Debug => ConsoleColor.Gray,
-                    LogLevel.Info => ConsoleColor.Green,
-                    _ => ConsoleColor.White
-                };
-                Console.WriteLine(line);
-                Console.ForegroundColor = originalColor;
-            }
-            else
-            {
-                Console.WriteLine(line);
-            }
+#if ANDROID
+            Console.WriteLine(line);
+#else
+
+            var originalColor = Console.ForegroundColor;
+            Console.ForegroundColor = level switch {
+                LogLevel.Error => ConsoleColor.Red,
+                LogLevel.Warning => ConsoleColor.Yellow,
+                LogLevel.Debug => ConsoleColor.Gray,
+                LogLevel.Info => ConsoleColor.Green,
+                _ => ConsoleColor.White
+            };
+            Console.WriteLine(line);
+            Console.ForegroundColor = originalColor;
+#endif
         }
 
         if (FileLogLevel <= level)
