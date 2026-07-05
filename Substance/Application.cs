@@ -4,8 +4,10 @@ public class Application : IDisposable
 {
     public static Application Instance = null!;
     public static Window? MainWindow => Instance._mainWindow;
+    public static GameEngine? GameEngine => Instance._gameEngine;
 
-    private Window _mainWindow;
+    private readonly Window _mainWindow;
+    private readonly GameEngine _gameEngine;
     private bool _disposed;
 
     public Application(Window mainWindow)
@@ -13,6 +15,10 @@ public class Application : IDisposable
         Instance = this;
 
         _mainWindow = mainWindow;
+        _gameEngine = new GameEngine();
+
+        _mainWindow.Update += _gameEngine.Update;
+        _mainWindow.Render += _gameEngine.Render;
     }
 
     ~Application()
@@ -36,6 +42,7 @@ public class Application : IDisposable
 
         _disposed = true;
 
+        _gameEngine.Dispose();
         _mainWindow.Dispose();
 
         GC.SuppressFinalize(this);

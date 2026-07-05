@@ -6,6 +6,9 @@ namespace Substance;
 
 public class Window : IDisposable
 {
+    public event Action<double>? Update;
+    public event Action<double>? Render;
+
     public event Action<PropertyChangedArgs<Vector2Int>>? SizeChanged;
 
     public IntPtr Pointer { get; }
@@ -26,8 +29,10 @@ public class Window : IDisposable
             SizeChanged?.Invoke(new(value, oldValue));
         } }
     public string Title { get; set; }
+    public float RefreshRate { get; }
     
     private bool _disposed;
+    private bool _isRunning = true;
 
     public Window(WindowOptions? options = null)
     {
@@ -54,6 +59,9 @@ public class Window : IDisposable
 
         Size = options.Size;
         Title = options.Title;
+        RefreshRate = GetRefreshRate();
+    
+        Log.Info($"窗口创建成功: {Title} {Size} {RefreshRate}Hz");
     }
 
     ~Window()
@@ -63,25 +71,38 @@ public class Window : IDisposable
 
     public void Exec()
     {
-        var isRunning = true;
+        var deltaTime = 1.0f / RefreshRate;
+        var delayTime = (uint)(deltaTime * 1000);
 
-        while (isRunning)
+        while (_isRunning)
         {
             while (SDL.PollEvent(out var e))
             {
                 switch ((SDL.EventType)e.Type)
                 {
                     case SDL.EventType.Quit:
-                        isRunning = false;
+                        _isRunning = false;
                         break;
                     case SDL.EventType.WindowResized:
                         Size = new(e.Window.Data1, e.Window.Data2);
                         break;
                 }
             }
+
+            Update?.Invoke(deltaTime);
+            Render?.Invoke(deltaTime);
+
+            SDL.Delay(delayTime);
         }
 
         Dispose();
+    }
+
+    private float GetRefreshRate()
+    {
+        var displayId = SDL.GetDisplayForWindow(Pointer);
+        var displayMode = SDL.GetCurrentDisplayMode(displayId);
+        return displayMode?.RefreshRate ?? 60.0f;
     }
 
     public void Dispose()
