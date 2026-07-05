@@ -3,6 +3,7 @@ using Android.Views;
 using static Android.Content.PM.ConfigChanges;
 using Application = Substance.Application;
 using SDLActivity = Org.Libsdl.App.SDLActivity;
+using Window = Substance.Window;
 
 namespace Test.Android;
 
@@ -46,7 +47,7 @@ public class MainActivity : SDLActivity
     {
         base.Main();
 
-        var app = new Application();
+        var app = new Application(new Window());
 
         app.Exec();
     }

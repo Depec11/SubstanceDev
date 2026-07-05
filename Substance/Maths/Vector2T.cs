@@ -17,4 +17,29 @@ public struct Vector2T<T> where T : struct, INumber<T>
         X = x;
         Y = y;
     }
+
+    public static bool operator ==(Vector2T<T> a, Vector2T<T> b)
+    {
+        return a.X == b.X && a.Y == b.Y;
+    }
+
+    public static bool operator !=(Vector2T<T> a, Vector2T<T> b)
+    {
+        return a.X != b.X || a.Y != b.Y;
+    }
+
+    public override readonly bool Equals(object? obj)
+    {
+        return obj is Vector2T<T> vector && vector == this;
+    }
+
+    public override readonly int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
+    }
+
+    public override readonly string ToString()
+    {
+        return $"({X}, {Y})";
+    }
 }
