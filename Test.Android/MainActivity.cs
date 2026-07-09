@@ -47,7 +47,7 @@ public class MainActivity : SDLActivity
     {
         base.Main();
 
-        var app = new Application(new Window());
+        var app = new Application();
 
         app.Exec();
     }

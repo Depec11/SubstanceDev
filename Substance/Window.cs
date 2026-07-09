@@ -26,12 +26,12 @@ public class Window : IDisposable
 
             Log.Info($"窗口大小 从 {oldValue} 变更为 {value}");
 
-            SizeChanged?.Invoke(new(value, oldValue));
+            SizeChanged?.Invoke(new(oldValue, value));
         } }
     public string Title { get; set; }
     public float RefreshRate { get; }
     
-    private bool _disposed;
+    private bool _disposed = false;
     private bool _isRunning = true;
 
     public Window(WindowOptions? options = null)
@@ -113,6 +113,8 @@ public class Window : IDisposable
         }
 
         _disposed = true;
+
+        _isRunning = false;
 
         SDL.DestroyWindow(Pointer);
         SDL.Quit();

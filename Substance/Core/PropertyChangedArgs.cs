@@ -1,3 +1,3 @@
 namespace Substance.Core;
 
-public record class PropertyChangedArgs<T>(T Value, T OldValue);
+public record class PropertyChangedArgs<T>(T OldValue, T NewValue);

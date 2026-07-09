@@ -11,7 +11,7 @@ public class SimpleLogger : ILogger, IDisposable
 
     private readonly StreamWriter? _writer;
     private readonly Lock _lock = new();
-    private bool _disposed;
+    private bool _disposed = false;
 
     public SimpleLogger(LogLevel consoleLogLevel = LogLevel.Info, LogLevel fileLogLevel = LogLevel.Debug, string? filePath = null) 
     {

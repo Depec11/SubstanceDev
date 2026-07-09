@@ -6,7 +6,7 @@ internal class Program
 {
     public static void Main(string[] args)
     {
-        var app = new Application(new Window());
+        var app = new Application();
 
         app.Exec();
     }
