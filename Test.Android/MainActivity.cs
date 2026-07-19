@@ -1,9 +1,7 @@
 using Android.Content.PM;
 using Android.Views;
 using static Android.Content.PM.ConfigChanges;
-using Application = Substance.Application;
 using SDLActivity = Org.Libsdl.App.SDLActivity;
-using Window = Substance.Window;
 
 namespace Test.Android;
 

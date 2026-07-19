@@ -1,6 +1,4 @@
-﻿using Substance;
-
-namespace Test.Desktop;
+﻿namespace Test.Desktop;
 
 internal class Program
 {
