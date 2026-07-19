@@ -9,11 +9,14 @@
     <ApplicationId>com.companyname.Test.Android</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <!--
-      Enables trim analyzers and full trimming during Release mode.
-      To learn more, see: https://learn.microsoft.com/dotnet/core/deploying/trimming/trimming-options#trimming-granularity
-    -->
+    
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
+    <StripSymbols>true</StripSymbols>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+    <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,0 +1,4 @@
+@echo off
+
+dotnet publish Test.Desktop -c Release -r linux-x64 -p:BuildTarget=Linux -o Release/linux-x64
+xdg-open Release/linux-x64

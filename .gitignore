@@ -6,6 +6,7 @@
 ## of Compiled source files
 bin/
 obj/
+Release
 
 # Files
 
