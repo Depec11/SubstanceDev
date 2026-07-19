@@ -2,15 +2,15 @@ using Substance.Logging;
 
 namespace Substance.Graphics;
 
-public class RenderEngineManager : IDisposable
+public class RenderingServer : IDisposable
 {
-    public RenderEngine Current { get; private set; } = new RenderEngine();
+    public static RenderEngine Current { get; private set; } = new RenderEngine();
 
     private bool _disposed = false;
 
-    internal RenderEngineManager() {}
+    internal RenderingServer() {}
 
-    ~RenderEngineManager()
+    ~RenderingServer()
     {
         Dispose();
     }
@@ -36,7 +36,7 @@ public class RenderEngineManager : IDisposable
             _ => throw new Exception($"未支持的渲染API: {api}"),
         };
 
-        Log.Info($"[{nameof(RenderEngineManager)}] 刲染引擎已切换为 {api}");
+        Log.Info($"[{nameof(RenderingServer)}] 渲染引擎已切换为 {api}");
     }
 
     public void Dispose()

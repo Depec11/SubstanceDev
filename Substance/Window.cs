@@ -57,11 +57,19 @@ public class Window : IDisposable
             throw new Exception(error);
         }
 
-        Size = options.Size;
+        SDL.GetWindowSize(Pointer, out var width, out var height);
+
+        Size = new(width, height);
         Title = options.Title;
         RefreshRate = GetRefreshRate();
     
         Log.Info($"窗口创建成功: {Title} {Size} {RefreshRate}Hz");
+
+// #if ANDROID
+//         SDL.GetDisplayBounds(SDL.GetDisplayForWindow(Pointer), out var displayBounds);
+
+//         Size = new(displayBounds.W, displayBounds.H);
+// #endif
     }
 
     ~Window()
