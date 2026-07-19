@@ -12,7 +12,7 @@ namespace Test.Android;
     LaunchMode = LaunchMode.SingleInstance,
     Exported = true,
     ScreenOrientation = ScreenOrientation.Landscape,
-    Theme = "@android:style/Theme.NoTitleBar.Fullscreen",
+    Theme = "@style/AppTheme",
     ConfigurationChanges =
         ConfigChanges.LayoutDirection | Locale | GrammaticalGender | FontScale | 
         FontWeightAdjustment | ConfigChanges.Orientation | UiMode |
