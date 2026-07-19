@@ -17,6 +17,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <AndroidResource Include="app_icon.png">
+      <Link>Resources\drawable\app_icon.png</Link>
+    </AndroidResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Substance.Android\Substance.Android.csproj" />
     <ProjectReference Include="..\Test\Test.csproj" />
   </ItemGroup>
