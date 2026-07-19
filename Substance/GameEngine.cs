@@ -4,7 +4,7 @@ namespace Substance;
 
 public class GameEngine : IDisposable
 {
-    private RenderEngineManager _renderEngineManager = new();
+    private RenderingServer _renderEngineManager = new();
     private bool _disposed = false;
 
     internal GameEngine() {}
@@ -13,8 +13,11 @@ public class GameEngine : IDisposable
 
     internal void Render(double deltaTime)
     {
-        _renderEngineManager.Current.BeginDraw();
-        _renderEngineManager.Current.EndDraw();
+        RenderingServer.Current.BeforeDraw();
+#if DEBUG
+        RenderingServer.Current.DrawTestRect();
+#endif
+        RenderingServer.Current.AfterDraw();
     }
 
     public void MakeRenderEngine(GraphicApi api)

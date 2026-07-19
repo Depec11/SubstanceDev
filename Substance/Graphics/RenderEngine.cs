@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+using Substance.Maths;
 
 namespace Substance.Graphics;
 
@@ -17,11 +17,7 @@ public class RenderEngine : IDisposable
         var window = Application.MainWindow;
         _windowPtr = window.Pointer;
         
-        window.SizeChanged += (args) =>
-        {
-            Console.WriteLine($"窗口大小改变: {args.NewValue}");
-            OnViewportSizeChangedOverride(args.NewValue);
-        };
+        window.SizeChanged += (args) => OnViewportSizeChangedOverride(args.NewValue);
     }
 
     ~RenderEngine()
@@ -29,21 +25,17 @@ public class RenderEngine : IDisposable
         Dispose();
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void BeginDraw()
-    {
-        BeforeDrawOverride();
-    }
+    internal virtual void BeforeDraw() {}
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void EndDraw()
-    {
-        AfterDrawOverride();
-    }
+    internal virtual void AfterDraw() {}
 
-    protected virtual void BeforeDrawOverride() {}
+    internal virtual void DrawTexture(Texture texture, in Matrix3x2 transform, in Color modulate) {}
 
-    protected virtual void AfterDrawOverride() {}
+    internal virtual void DrawString(Font font, string text, int size, in Matrix3x2 transform, in Color color) {}
+
+#if DEBUG
+    internal virtual void DrawTestRect() {}
+#endif
 
     protected virtual void OnViewportSizeChangedOverride(Vector2Int size) {}
 
