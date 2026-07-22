@@ -33,4 +33,18 @@
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\Icon.png">
+      <LogicalName>Substance/Assets/Icon.png</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Condition="'$(BuildTarget)' == 'Android'" Include="Assets\Shaders\Android\**">
+      <LogicalName>Substance/Assets/Shaders/Android/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+
+    <EmbeddedResource Condition="'$(BuildTarget)' != 'Android'" Include="Assets\Shaders\Desktop\**">
+      <LogicalName>Substance/Assets/Shaders/Desktop/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
