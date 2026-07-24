@@ -1,4 +1,5 @@
 using System.Reflection;
+using Substance.Logging;
 
 namespace Substance;
 
@@ -20,6 +21,8 @@ public static class Assets
     {
         if (!Exists(uri, out var assembly, out var resourcePath))
         {
+            Log.Warning($"资产 {uri} 不存在, 资源路径: {resourcePath}");
+
             return null;
         }
 
@@ -39,8 +42,6 @@ public static class Assets
         
         assembly = null;
         resourcePath = path;
-
-        Console.WriteLine($"Scheme: {scheme}, Host: {host}, Path: {path}");
         
         if (!scheme.Equals("assets", StringComparison.OrdinalIgnoreCase))
         {
