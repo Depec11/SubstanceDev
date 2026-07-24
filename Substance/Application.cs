@@ -23,6 +23,8 @@ public class Application : IDisposable
 
         _mainWindow.Update += _gameEngine.Update;
         _mainWindow.Render += _gameEngine.Render;
+
+        OnCreatedOverride();
     }
 
     ~Application()
@@ -36,6 +38,8 @@ public class Application : IDisposable
 
         Dispose();
     }
+
+    protected virtual void OnCreatedOverride() {}
 
     public void Dispose()
     {
