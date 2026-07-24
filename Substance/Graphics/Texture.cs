@@ -1,4 +1,5 @@
 using Substance.Logging;
+using Substance.Maths;
 
 namespace Substance.Graphics;
 

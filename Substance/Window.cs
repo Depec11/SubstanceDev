@@ -1,6 +1,7 @@
 using SDL3;
 using Substance.Core;
 using Substance.Logging;
+using Substance.Maths;
 
 namespace Substance;
 
@@ -22,7 +23,7 @@ public class Window : IDisposable
             var oldValue = field;
             field = value;
 
-            SDL.SetWindowSize(Pointer, value.X, value.Y);
+            SDL.SetWindowSize(Pointer, value.x, value.y);
 
             Log.Info($"窗口大小 从 {oldValue} 变更为 {value}");
 
@@ -45,7 +46,7 @@ public class Window : IDisposable
             throw new Exception(error);
         }
 
-        Pointer = SDL.CreateWindow(options.Title, options.Size.X, options.Size.Y, 
+        Pointer = SDL.CreateWindow(options.Title, options.Size.x, options.Size.y, 
                                    SDL.WindowFlags.OpenGL | SDL.WindowFlags.HighPixelDensity | 
                                    (OperatingSystem.IsAndroid() ? 0 : SDL.WindowFlags.Resizable));
 

@@ -3,45 +3,19 @@
 using SDL3;
 using Silk.NET.OpenGL;
 using Substance.Logging;
+using Substance.Maths;
 
 namespace Substance.Graphics;
 
 public class RenderEngineGL : RenderEngine
 {
-    private unsafe class GLWrapper
-    {
-        private readonly delegate* unmanaged<int, uint*, void> _glDeleteBuffers;
-        private readonly delegate* unmanaged<uint, void> _glDeleteVertexArrays;
-        private readonly delegate* unmanaged<uint, void> _glDeleteProgram;
-
-        public GLWrapper()
-        {
-            _glDeleteBuffers = (delegate* unmanaged<int, uint*, void>)SDL.GLGetProcAddress("glDeleteBuffers");
-            _glDeleteVertexArrays = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteVertexArrays");
-            _glDeleteProgram = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteProgram");
-        }
-
-        public void DeleteBuffer(uint buffer)
-        {
-            _glDeleteBuffers(1, &buffer);
-        }
-
-        public void DeleteVertexArray(uint vao)
-        {
-            _glDeleteVertexArrays(vao);
-        }
-
-        public void DeleteProgram(uint program)
-        {
-            _glDeleteProgram(program);
-        }
-    }
-
     private readonly IntPtr _glContext;
     private readonly GL _gl;
     private readonly GLWrapper _glWrapper;
 
-#if DEBUG
+    private (uint Vao, uint Vbo, uint Ebo) _rectMesh;
+
+   #if DEBUG
     private uint _vao;
     private uint _vbo;
     private uint _ebo;
@@ -80,7 +54,7 @@ public class RenderEngineGL : RenderEngine
         _gl.Enable(EnableCap.Blend);
         _gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         _gl.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        _gl.Viewport(0, 0, (uint)window.Size.X, (uint)window.Size.Y);
+        _gl.Viewport(0, 0, (uint)window.Size.x, (uint)window.Size.y);
 
         Log.Info($"[{nameof(RenderEngineGL)}] 创建成功");
 
@@ -129,7 +103,7 @@ public class RenderEngineGL : RenderEngine
 
     protected override void OnViewportSizeChangedOverride(Vector2Int size)
     {
-        _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
+        _gl.Viewport(0, 0, (uint)size.x, (uint)size.y);
     }
 
     private void Initialize()
@@ -222,6 +196,35 @@ public class RenderEngineGL : RenderEngine
         _gl.EnableVertexAttribArray(0);
 
         _gl.BindVertexArray(0);
+    }
+
+    private unsafe class GLWrapper
+    {
+        private readonly delegate* unmanaged<int, uint*, void> _glDeleteBuffers;
+        private readonly delegate* unmanaged<uint, void> _glDeleteVertexArrays;
+        private readonly delegate* unmanaged<uint, void> _glDeleteProgram;
+
+        public GLWrapper()
+        {
+            _glDeleteBuffers = (delegate* unmanaged<int, uint*, void>)SDL.GLGetProcAddress("glDeleteBuffers");
+            _glDeleteVertexArrays = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteVertexArrays");
+            _glDeleteProgram = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteProgram");
+        }
+
+        public void DeleteBuffer(uint buffer)
+        {
+            _glDeleteBuffers(1, &buffer);
+        }
+
+        public void DeleteVertexArray(uint vao)
+        {
+            _glDeleteVertexArrays(vao);
+        }
+
+        public void DeleteProgram(uint program)
+        {
+            _glDeleteProgram(program);
+        }
     }
 #endif
 }
