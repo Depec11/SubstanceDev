@@ -1,5 +1,4 @@
 using Substance.Graphics;
-using Substance.Maths;
 
 namespace Substance;
 

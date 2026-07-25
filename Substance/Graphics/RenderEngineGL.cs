@@ -3,7 +3,6 @@
 using SDL3;
 using Silk.NET.OpenGL;
 using Substance.Logging;
-using Substance.Maths;
 
 namespace Substance.Graphics;
 
@@ -54,7 +53,7 @@ public class RenderEngineGL : RenderEngine
         _gl.Enable(EnableCap.Blend);
         _gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
         _gl.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        _gl.Viewport(0, 0, (uint)window.Size.x, (uint)window.Size.y);
+        _gl.Viewport(0, 0, (uint)window.Size.X, (uint)window.Size.Y);
 
         Log.Info($"[{nameof(RenderEngineGL)}] 创建成功");
 
@@ -103,7 +102,7 @@ public class RenderEngineGL : RenderEngine
 
     protected override void OnViewportSizeChangedOverride(Vector2Int size)
     {
-        _gl.Viewport(0, 0, (uint)size.x, (uint)size.y);
+        _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
     }
 
     private void Initialize()

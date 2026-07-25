@@ -3,7 +3,6 @@
 using SDL3;
 using Silk.NET.OpenGLES;
 using Substance.Logging;
-using Substance.Maths;
 
 namespace Substance.Graphics;
 
