@@ -4,14 +4,22 @@ namespace Substance.Graphics;
 
 public class Texture : IDisposable
 {
-    internal readonly uint Tid;
-    public readonly Vector2Int Size;
+    public byte[] Data => TextureManager.GetData(Tid);
 
-    private bool disposed = false;
+    internal readonly uint Tid;
+    public readonly uint Width;
+    public readonly uint Height;
+
+    private bool _disposed = false;
+
+    internal Texture(uint tid)
+    {
+        Tid = tid;
+    }
 
     public Texture(Uri uri)
     {
-        Tid = TextureManager.LoadTexture(uri, out var data);
+        Tid = TextureManager.LoadTexture(this, uri, out var data);
         
         if (data is null)
         {
@@ -19,7 +27,8 @@ public class Texture : IDisposable
             return;
         }
 
-        Size = new Vector2Int(data.Width, data.Height);
+        Width = (uint)data.Width;
+        Height = (uint)data.Height;
     }
 
     ~Texture()
@@ -29,14 +38,14 @@ public class Texture : IDisposable
 
     public void Dispose()
     {
-        if (disposed)
+        if (_disposed)
         {
             return;
         }
 
-        disposed = true;
+        _disposed = true;
         
-        TextureManager.UnloadTexture(Tid);
+        TextureManager.UnloadTexture(this);
         
         GC.SuppressFinalize(this);
     }

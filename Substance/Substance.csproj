@@ -38,12 +38,12 @@
       <LogicalName>Substance/Assets/Icon.png</LogicalName>
     </EmbeddedResource>
 
-    <EmbeddedResource Condition="'$(BuildTarget)' == 'Android'" Include="Assets\Shaders\Android\**">
-      <LogicalName>Substance/Assets/Shaders/Android/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    <EmbeddedResource Condition="'$(BuildTarget)' == 'Android'" Include="Assets\Shaders\OpenGLES\**">
+      <LogicalName>Substance/Assets/Shaders/OpenGLES/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
 
-    <EmbeddedResource Condition="'$(BuildTarget)' != 'Android'" Include="Assets\Shaders\Desktop\**">
-      <LogicalName>Substance/Assets/Shaders/Desktop/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    <EmbeddedResource Condition="'$(BuildTarget)' != 'Android'" Include="Assets\Shaders\OpenGL\**">
+      <LogicalName>Substance/Assets/Shaders/OpenGL/%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

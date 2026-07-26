@@ -29,6 +29,19 @@ public static class Assets
         return assembly is null ? File.OpenRead(resourcePath) : assembly.GetManifestResourceStream(resourcePath);
     }
 
+    public static string? ReadText(Uri uri)
+    {
+        var stream = Open(uri);
+
+        if (stream is null)
+        {
+            return null;
+        }
+
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
+
     private static void Parse(Uri uri, out string scheme, out string host, out string path)
     {
         scheme = uri.Scheme;

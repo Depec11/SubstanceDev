@@ -1,24 +1,23 @@
-using StbImageSharp;
 using Substance.Logging;
 
 namespace Substance.Graphics;
 
-internal static class TextureManager
+internal static class ShaderManager
 {
-    private static uint s_tid = 0;
-    private static readonly Dictionary<Uri, TextureCache> s_caches = [];
+    private static uint s_sid = 0;
+    private static readonly Dictionary<Uri, ShaderCache> s_caches = [];
 
-    internal static uint LoadTexture(Texture texture, Uri uri, out ImageResult? data)
+    internal static uint LoadShader(Shader shader, Uri uri, out string? source)
     {
         if (s_caches.TryGetValue(uri, out var cache))
         {
-            data = cache.Data;
             cache.References++;
             s_caches[uri] = cache;
-            return cache.Tid;
+            source = cache.Source;
+            return cache.Sid;
         }
 
-        data = null;
+        source = null;
 
         var stream = Assets.Open(uri);
 
@@ -29,37 +28,37 @@ internal static class TextureManager
 
         try
         {
-            data = ImageResult.FromStream(stream);
+            source = Assets.ReadText(uri);
 
-            s_caches[uri] = new(++s_tid, data)
+            s_caches[uri] = new(++s_sid, source)
             {
                 References = 1,
             };
 
-            RenderingServer.Current.LoadTexture(s_tid, data.Data, (uint)data.Width, (uint)data.Height);
+            RenderingServer.Current.LoadShader(s_sid, shader.Type, source ?? "");
 
-            return s_tid;
+            return s_sid;
         }
         catch (Exception e)
         {
-            Log.Warning($"加载纹理 {uri} 失败: {e}");
+            Log.Warning($"加载着色器 {uri} 失败: {e}");
 
             return 0;
         }
     }
 
-    internal static void UnloadTexture(Texture texture)
+    internal static void UnloadShader(Shader shader)
     {
         foreach (var (key, cache) in s_caches)
         {
-            if (cache.Tid == texture.Tid)
+            if (cache.Sid == shader.Sid)
             {
                 cache.References--;
                 if (cache.References == 0)
                 {
                     s_caches.Remove(key);
-                    
-                    RenderingServer.Current.UnloadTexture(cache.Tid);
+
+                    RenderingServer.Current.UnloadShader(cache.Sid);
                     cache.Dispose();
                     break;
                 }
@@ -68,34 +67,33 @@ internal static class TextureManager
         }
     }
 
-    internal static byte[] GetData(uint tid)
+    internal static string? GetSource(uint sid)
     {
         foreach (var (key, cache) in s_caches)
         {
-            if (cache.Tid == tid)
+            if (cache.Sid == sid)
             {
-                return cache.Data.Data;
+                return cache.Source;
             }
         }
-
-        return [];
+        return null;
     }
 
-    internal class TextureCache : IDisposable
+    internal class ShaderCache : IDisposable
     {
-        public uint Tid;
+        public uint Sid;
         public uint References = 0;
-        public ImageResult Data;
+        public string? Source = null;
 
         private bool disposed = false;
 
-        public TextureCache(uint tid, ImageResult data)
+        public ShaderCache(uint tid, string? source = null)
         {
-            Tid = tid;
-            Data = data;
+            Sid = tid;
+            Source = source;
         }
 
-        ~TextureCache()
+        ~ShaderCache()
         {
             Dispose();
         }

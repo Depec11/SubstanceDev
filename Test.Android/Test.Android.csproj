@@ -9,14 +9,15 @@
     <ApplicationId>com.companyname.Test.Android</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <BuildTarget>Android</BuildTarget>
     
     <SelfContained>true</SelfContained>
     <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>full</TrimMode>
     <StripSymbols>true</StripSymbols>
-    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
-    <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
-    <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+    <!-- <IlcOptimizationPreference>Size</IlcOptimizationPreference> -->
+    <!-- <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+    <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT> -->
   </PropertyGroup>
 
   <ItemGroup>

@@ -3,43 +3,20 @@
 using SDL3;
 using Silk.NET.OpenGLES;
 using Substance.Logging;
+using Substance.Maths;
 
 namespace Substance.Graphics;
 
 public class RenderEngineGLES : RenderEngine
 {
-    private unsafe class GLWrapper
-    {
-        private readonly delegate* unmanaged<int, uint*, void> _glDeleteBuffers;
-        private readonly delegate* unmanaged<uint, void> _glDeleteVertexArrays;
-        private readonly delegate* unmanaged<uint, void> _glDeleteProgram;
-
-        public GLWrapper()
-        {
-            _glDeleteBuffers = (delegate* unmanaged<int, uint*, void>)SDL.GLGetProcAddress("glDeleteBuffers");
-            _glDeleteVertexArrays = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteVertexArrays");
-            _glDeleteProgram = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteProgram");
-        }
-
-        public void DeleteBuffer(uint buffer)
-        {
-            _glDeleteBuffers(1, &buffer);
-        }
-
-        public void DeleteVertexArray(uint vao)
-        {
-            _glDeleteVertexArrays(vao);
-        }
-
-        public void DeleteProgram(uint program)
-        {
-            _glDeleteProgram(program);
-        }
-    }
-
     private readonly IntPtr _glContext;
     private readonly GL _gl;
     private readonly GLWrapper _glWrapper;
+    private readonly Dictionary<uint, uint> _shaderCaches = [];
+    private readonly Dictionary<uint, uint> _textureCaches = [];
+
+    private (uint Vao, uint Vbo, uint Ebo) _rectMesh;
+    private uint _textureRectProgram;
 
 #if DEBUG
     private uint _vao;
@@ -111,8 +88,171 @@ public class RenderEngineGLES : RenderEngine
     }
 #endif
 
+    internal unsafe override void DrawTexture(Texture texture, in Matrix3x2 transform, in Vector3 modulate)
+    {
+        if (_textureRectProgram is 0)
+        {
+            Log.Warning($"[{nameof(RenderEngineGLES)}] 未加载纹理着色器");
+
+            return;
+        }
+
+        var vao = _rectMesh.Vao;
+
+        if (vao is 0)
+        {
+            Log.Warning($"[{nameof(RenderEngineGLES)}] 未加载矩形网格");
+
+            return;
+        }
+
+        if (!_textureCaches.TryGetValue(texture.Tid, out var textureId))
+        {
+            Log.Warning($"[{nameof(RenderEngineGLES)}] 未加载纹理 {texture.Tid}");
+
+            return;
+        }
+
+        _gl.UseProgram(_textureRectProgram);
+
+        var mvpLoc = _gl.GetUniformLocation(_textureRectProgram, Shader.MVP);
+
+        if (mvpLoc > -1)
+        {
+            var transformCopy = transform;
+
+            _gl.UniformMatrix3x2(mvpLoc, 1, false, (float*)&transformCopy);
+        }
+
+        var texLoc = _gl.GetUniformLocation(_textureRectProgram, Shader.Texture);
+
+        if (texLoc > -1)
+        {
+            _gl.Uniform1(texLoc, 0);
+            _gl.ActiveTexture(TextureUnit.Texture0);
+            _gl.BindTexture(TextureTarget.Texture2D, textureId);
+        }
+
+        var modulateLoc = _gl.GetUniformLocation(_textureRectProgram, Shader.Modulate);
+
+        if (modulateLoc > -1)
+        {
+            _gl.Uniform3(modulateLoc, modulate.X, modulate.Y, modulate.Z);
+        }
+
+        _gl.BindVertexArray(vao);
+        _gl.DrawElements(
+            PrimitiveType.Triangles, 
+            6, 
+            DrawElementsType.UnsignedInt, 
+            null
+        );
+
+        _gl.ActiveTexture(TextureUnit.Texture0);
+        _gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        _gl.BindVertexArray(0);
+    }
+
+    internal override void LoadShader(uint shader, ShaderType type, string source)
+    {
+        if (_shaderCaches.ContainsKey(shader))
+        {
+            return;
+        }
+
+        var id = LoadShader(source, type);
+    
+        _shaderCaches.Add(shader, id);
+
+        Log.Info($"[{nameof(RenderEngineGLES)}] 加载着色器 {shader} 成功");
+    }
+
+    internal unsafe override void LoadTexture(uint texture, byte[] data, uint width, uint height)
+    {
+        if (_textureCaches.ContainsKey(texture))
+        {
+            return;
+        }
+
+        var id = _gl.GenTexture();
+        _gl.ActiveTexture(TextureUnit.Texture0);
+        _gl.BindTexture(TextureTarget.Texture2D, id);
+
+        fixed (byte* pData = data)
+        {
+            _gl.TexImage2D(
+                TextureTarget.Texture2D,
+                0,
+                InternalFormat.Rgba,
+                width,
+                height,
+                0,
+                PixelFormat.Rgba,
+                PixelType.UnsignedByte,
+                pData
+            );
+        }
+
+        var textureWrapS = (int)TextureWrapMode.Repeat;
+        var textureWrapT = (int)TextureWrapMode.Repeat;
+        var textureMinFilter = (int)TextureMinFilter.Linear;
+        var textureMagFilter = (int)TextureMagFilter.Linear;
+
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, ref textureWrapS);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, ref textureWrapT);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, ref textureMinFilter);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, ref textureMagFilter);
+
+        _gl.BindTexture(TextureTarget.Texture2D, 0);
+
+        _textureCaches.Add(texture, id);
+
+        Log.Info($"[{nameof(RenderEngineGLES)}] 加载纹理 {texture} 成功");
+    }
+
+    internal override void UnloadShader(uint shader)
+    {
+        if (_shaderCaches.TryGetValue(shader, out uint value))
+        {
+            _gl.DeleteShader(value);
+            _shaderCaches.Remove(shader);
+
+            Log.Info($"[{nameof(RenderEngineGLES)}] 卸载着色器 {shader} 成功");
+        }
+    }
+
+    internal override void UnloadTexture(uint texture)
+    {
+        if (_textureCaches.TryGetValue(texture, out uint value))
+        {
+            _glWrapper.DeleteTexture(value);
+            _textureCaches.Remove(texture);
+            
+            Log.Info($"[{nameof(RenderEngineGLES)}] 卸载纹理 {texture} 成功");
+        }
+    }
+
     protected override void OnDisposeOverride()
     {
+        foreach (var (key, value) in _textureCaches)
+        {
+            _glWrapper.DeleteTexture(value);
+        }
+
+        _textureCaches.Clear();
+
+        foreach (var (key, value) in _shaderCaches)
+        {
+            _gl.DeleteShader(value);
+        }
+
+        _shaderCaches.Clear();
+
+        _glWrapper.DeleteBuffer(_rectMesh.Vbo);
+        _glWrapper.DeleteBuffer(_rectMesh.Ebo);
+        _glWrapper.DeleteVertexArray(_rectMesh.Vao);
+
 #if DEBUG
         _glWrapper.DeleteBuffer(_vbo);
         _glWrapper.DeleteBuffer(_ebo);
@@ -137,10 +277,130 @@ public class RenderEngineGLES : RenderEngine
 #if DEBUG
         InitializeDebug();
 #endif
+
+        var vao = LoadMesh(
+            [
+                -0.5f, -0.5f, 0.0f, 0.0f,
+                0.5f, -0.5f, 1.0f, 0.0f,
+                0.5f,  0.5f, 1.0f, 1.0f,
+                -0.5f,  0.5f, 0.0f, 1.0f,
+            ], 
+            [
+                0u, 1u, 2u,
+                0u, 2u, 3u
+            ], 
+            4, 
+            [2, 2],
+            out var vbo, 
+            out var ebo
+        );
+        _rectMesh = (vao, vbo, ebo);
+
+        var vertexSource = Assets.ReadText(new Uri("assets://Substance/Assets/Shaders/OpenGLES/SpriteUnlit.vert"));
+        var fragmentSource = Assets.ReadText(new Uri("assets://Substance/Assets/Shaders/OpenGLES/SpriteUnlit.frag"));
+        var vertex = LoadShader(vertexSource ?? "", ShaderType.Vertex);
+        var fragment = LoadShader(fragmentSource ?? "", ShaderType.Fragment);
+        _textureRectProgram = LoadProgram(vertex, fragment);
+    }
+
+    private unsafe uint LoadMesh(float[] vertices, uint[] indices, uint vertexCount, int[] sizes, out uint vbo, out uint ebo)
+    {
+        var vao = _gl.GenVertexArray();
+        _gl.BindVertexArray(vao);
+
+        vbo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+        _gl.BufferData(
+            GLEnum.ArrayBuffer, 
+            (nuint)(vertices.Length * sizeof(float)), 
+            vertices, 
+            GLEnum.StaticDraw
+        );
+
+        ebo = _gl.GenBuffer();
+        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
+        _gl.BufferData(
+            GLEnum.ElementArrayBuffer, 
+            (nuint)(indices.Length * sizeof(uint)), 
+            indices, 
+            GLEnum.StaticDraw
+        );
+
+        var strideSize = (uint)vertices.Length / vertexCount * sizeof(float);
+
+        var offset = 0;
+        for (uint i = 0; i < sizes.Length; i++)
+        {
+            _gl.VertexAttribPointer(
+                i,
+                sizes[i],
+                VertexAttribPointerType.Float,
+                false,
+                strideSize,
+                (void*)offset
+            );
+
+            _gl.EnableVertexAttribArray(i);
+
+            offset += sizes[i] * sizeof(float);
+        }
+
+        _gl.BindVertexArray(0);
+
+        return vao;
+    }
+
+    private uint LoadProgram(uint vertex, uint fragment)
+    {
+        var program = _gl.CreateProgram();
+        
+        _gl.AttachShader(program, vertex);
+        _gl.AttachShader(program, fragment);
+        _gl.LinkProgram(program);
+        _gl.GetProgram(program, GLEnum.LinkStatus, out var status);
+        if (status == 0)
+        {
+            Log.Error($"[{nameof(RenderEngineGLES)}] 链接程序失败: {_gl.GetProgramInfoLog(program)}");
+            _gl.DeleteProgram(program);
+            return 0;
+        }
+
+        _gl.DetachShader(program, vertex);
+        _gl.DetachShader(program, fragment);
+        
+        return program;
+    }
+
+    private uint LoadShader(string source, ShaderType shaderType)
+    {
+        var id = _gl.CreateShader(SwithToOpenGLShaderType(shaderType));
+
+        _gl.ShaderSource(id, source);
+        _gl.CompileShader(id);
+
+        var infoLog = _gl.GetShaderInfoLog(id);
+        if (!string.IsNullOrWhiteSpace(infoLog))
+        {
+            Log.Warning($"[{nameof(RenderEngineGLES)}] 编译着色器 类型 {shaderType} 失败: {infoLog} 源码：{source}");
+            _gl.DeleteShader(id);
+            return 0;
+        }
+
+        return id;
+
+        static Silk.NET.OpenGLES.ShaderType SwithToOpenGLShaderType(ShaderType type)
+        {
+            return type switch
+            {
+                ShaderType.Vertex => Silk.NET.OpenGLES.ShaderType.VertexShader,
+                ShaderType.Fragment => Silk.NET.OpenGLES.ShaderType.FragmentShader,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
+            };
+        }
     }
 
 #if DEBUG
-    private unsafe void InitializeDebug()
+    private void InitializeDebug()
     {
         var vertices = new float[]
         {
@@ -156,45 +416,12 @@ public class RenderEngineGLES : RenderEngine
             1, 2, 3
         };
 
-        _vao = _gl.GenVertexArray();
-        _gl.BindVertexArray(_vao);
-        _vbo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ArrayBuffer, _vbo);
-        _gl.BufferData(
-            GLEnum.ArrayBuffer, 
-            (nuint)(vertices.Length * sizeof(float)), 
-            vertices, 
-            GLEnum.StaticDraw
-        );
+        _vao = LoadMesh(vertices, indices, 2, [2], out var vbo, out var ebo);
+        _vbo = vbo;
+        _ebo = ebo;
 
-        _ebo = _gl.GenBuffer();
-        _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, _ebo);
-        _gl.BufferData(
-            GLEnum.ElementArrayBuffer, 
-            (nuint)(indices.Length * sizeof(uint)), 
-            indices, 
-            GLEnum.StaticDraw
-        );
-
-        var vertexShader = _gl.CreateShader(ShaderType.VertexShader);
-        _gl.ShaderSource(vertexShader, ShaderSources.VertexShaderSourceGLES);
-        _gl.CompileShader(vertexShader);
-
-        var infoLog = _gl.GetShaderInfoLog(vertexShader);
-        if (!string.IsNullOrWhiteSpace(infoLog))
-        {
-            Log.Error($"顶点着色器编译失败: {infoLog}");
-        }
-
-        var fragmentShader = _gl.CreateShader(ShaderType.FragmentShader);
-        _gl.ShaderSource(fragmentShader, ShaderSources.FragmentShaderSourceGLES);
-        _gl.CompileShader(fragmentShader);
-
-        infoLog = _gl.GetShaderInfoLog(fragmentShader);
-        if (!string.IsNullOrWhiteSpace(infoLog))
-        {
-            Log.Error($"片段着色器编译失败: {infoLog}");
-        }
+        var vertexShader = LoadShader(ShaderSources.VertexShaderSourceGL, ShaderType.Vertex);
+        var fragmentShader = LoadShader(ShaderSources.FragmentShaderSourceGL, ShaderType.Fragment);
 
         _program = _gl.CreateProgram();
         _gl.AttachShader(_program, vertexShader);
@@ -210,20 +437,44 @@ public class RenderEngineGLES : RenderEngine
         _gl.DetachShader(_program, fragmentShader);
         _gl.DeleteShader(vertexShader);
         _gl.DeleteShader(fragmentShader);
-
-        _gl.VertexAttribPointer(
-            0,
-            2,
-            GLEnum.Float,
-            false,
-            2 * sizeof(float),
-            null
-        );
-        _gl.EnableVertexAttribArray(0);
-
-        _gl.BindVertexArray(0);
     }
 #endif
+
+    private unsafe class GLWrapper
+    {
+        private readonly delegate* unmanaged<int, uint*, void> _glDeleteBuffers;
+        private readonly delegate* unmanaged<uint, void> _glDeleteVertexArrays;
+        private readonly delegate* unmanaged<uint, void> _glDeleteProgram;
+        private readonly delegate* unmanaged<uint, uint*, void> _glDeleteTextures;
+
+        public GLWrapper()
+        {
+            _glDeleteBuffers = (delegate* unmanaged<int, uint*, void>)SDL.GLGetProcAddress("glDeleteBuffers");
+            _glDeleteVertexArrays = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteVertexArrays");
+            _glDeleteProgram = (delegate* unmanaged<uint, void>)SDL.GLGetProcAddress("glDeleteProgram");
+            _glDeleteTextures = (delegate* unmanaged<uint, uint*, void>)SDL.GLGetProcAddress("glDeleteTextures");
+        }
+
+        public void DeleteBuffer(uint buffer)
+        {
+            _glDeleteBuffers(1, &buffer);
+        }
+
+        public void DeleteVertexArray(uint vao)
+        {
+            _glDeleteVertexArrays(vao);
+        }
+
+        public void DeleteProgram(uint program)
+        {
+            _glDeleteProgram(program);
+        }
+
+        public void DeleteTexture(uint texture)
+        {
+            _glDeleteTextures(1, &texture);
+        }
+    }
 }
 
 #endif
