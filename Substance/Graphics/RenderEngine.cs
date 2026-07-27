@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Substance.Maths;
 
 namespace Substance.Graphics;
@@ -9,8 +10,18 @@ public class RenderEngine : IDisposable
     protected readonly IntPtr _windowPtr;
     
     private bool disposed = false;
+    
+    internal RenderEngine()
+    {
+        Api = GraphicApi.None;
 
-    internal RenderEngine(GraphicApi api = GraphicApi.None)
+        var window = Application.MainWindow;
+        _windowPtr = window.Pointer;
+        
+        window.SizeChanged += (args) => OnViewportSizeChangedOverride(args.NewValue);
+    }
+    
+    protected RenderEngine(GraphicApi api = GraphicApi.None)
     {
         Api = api;
 
@@ -25,27 +36,51 @@ public class RenderEngine : IDisposable
         Dispose();
     }
 
-    internal virtual void BeforeDraw() {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void BeforeDraw() => BeforeDrawOverride();
 
-    internal virtual void AfterDraw() {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void AfterDraw() => AfterDrawOverride();
 
-    internal virtual void DrawTexture(Texture texture, in Matrix3x2 transform, in Vector3 modulate) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void DrawTexture(uint texture, in Matrix3x2 transform, in Vector3<float> modulate) => DrawTextureOverride(texture, transform, modulate);
 
-    internal virtual void DrawString(Font font, string text, int size, in Matrix3x2 transform, in Vector3 color) {}
+    // internal void DrawString(uint font, string text, int size, in Matrix3x2 transform, in Vector3 color) {}
 
-    internal virtual void LoadShader(uint shader, ShaderType type, string source) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void LoadShader(uint shader, ShaderType type, string source) => LoadShaderOverride(shader, type, source);
 
-    internal virtual void LoadTexture(uint texture, byte[] data, uint width, uint height) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void LoadTexture(uint texture, byte[] data, uint width, uint height) => LoadTextureOverride(texture, data, width, height);
 
-    internal virtual void UnloadShader(uint shader) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void UnloadShader(uint shader) => UnloadShaderOverride(shader);
 
-    internal virtual void UnloadTexture(uint texture) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void UnloadTexture(uint texture) => UnloadTextureOverride(texture);
+
+    protected virtual void BeforeDrawOverride() {}
+
+    protected virtual void AfterDrawOverride() {}
+
+    protected virtual void DrawTextureOverride(uint texture, in Matrix3x2 transform, in Vector3<float> modulate) {}
+
+    protected virtual void LoadShaderOverride(uint shader, ShaderType type, string source) {}
+
+    protected virtual void LoadTextureOverride(uint texture, byte[] data, uint width, uint height) {}
+
+    protected virtual void UnloadShaderOverride(uint shader) {}
+
+    protected virtual void UnloadTextureOverride(uint texture) {}
 
 #if DEBUG
-    internal virtual void DrawTestRect() {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void DrawTestRect() => DrawTestRectOverride();
+
+    protected virtual void DrawTestRectOverride() {}
 #endif
 
-    protected virtual void OnViewportSizeChangedOverride(Vector2Int size) {}
+    protected virtual void OnViewportSizeChangedOverride(Vector2<int> size) {}
 
     protected virtual void OnDisposeOverride() {}
 

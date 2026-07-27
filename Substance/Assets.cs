@@ -58,6 +58,8 @@ public static class Assets
         
         if (!scheme.Equals("assets", StringComparison.OrdinalIgnoreCase))
         {
+            Log.Warning($"资产 {uri} 不存在, 未指定资产方案: {scheme}");
+
             return false;
         }
     
@@ -72,6 +74,8 @@ public static class Assets
 
         if (assembly is null)
         {
+            Log.Warning($"资产 {uri} 不存在, 未找到资产集: {host}");
+
             return false;
         }
 

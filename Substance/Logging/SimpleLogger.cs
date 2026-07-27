@@ -25,11 +25,13 @@ public class SimpleLogger : ILogger, IDisposable
 
         string fullPath;
 
-#if ANDROID
-        fullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), FilePath);
-#else
-        fullPath = Path.GetFullPath(FilePath);
-#endif
+        if (OperatingSystem.IsAndroid()) {
+            fullPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), FilePath);
+        }
+        else
+        {
+            fullPath = Path.GetFullPath(FilePath);
+        }
 
         var directory = Path.GetDirectoryName(fullPath);
 
@@ -60,21 +62,23 @@ public class SimpleLogger : ILogger, IDisposable
 
         if (ConsoleLogLevel <= level)
         {
-#if ANDROID
-            Console.WriteLine(line);
-#else
-
-            var originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = level switch {
-                LogLevel.Error => ConsoleColor.Red,
-                LogLevel.Warning => ConsoleColor.Yellow,
-                LogLevel.Debug => ConsoleColor.Gray,
-                LogLevel.Info => ConsoleColor.Green,
-                _ => ConsoleColor.White
-            };
-            Console.WriteLine(line);
-            Console.ForegroundColor = originalColor;
-#endif
+            if (OperatingSystem.IsAndroid())
+            {
+                Console.WriteLine(line);
+            }
+            else
+            {
+                var originalColor = Console.ForegroundColor;
+                Console.ForegroundColor = level switch {
+                    LogLevel.Error => ConsoleColor.Red,
+                    LogLevel.Warning => ConsoleColor.Yellow,
+                    LogLevel.Debug => ConsoleColor.Gray,
+                    LogLevel.Info => ConsoleColor.Green,
+                    _ => ConsoleColor.White
+                };
+                Console.WriteLine(line);
+                Console.ForegroundColor = originalColor;
+            }
         }
 
         if (FileLogLevel <= level)

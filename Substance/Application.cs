@@ -1,3 +1,5 @@
+using Substance.Graphics;
+
 namespace Substance;
 
 public class Application : IDisposable
@@ -10,7 +12,7 @@ public class Application : IDisposable
     private readonly GameEngine _gameEngine;
     private bool _disposed = false;
 
-    public Application(WindowOptions? options = null)
+    public Application(Func<GraphicApi, RenderEngine> createRenderEngine, WindowOptions? options = null)
     {
         Instance = this;
 
@@ -18,7 +20,7 @@ public class Application : IDisposable
 
         _mainWindow = new(options);
 
-        _gameEngine = new GameEngine();
+        _gameEngine = new GameEngine(new RenderingServer(createRenderEngine));
         _gameEngine.MakeRenderEngine(options.GraphicApi);
 
         _mainWindow.Update += _gameEngine.Update;

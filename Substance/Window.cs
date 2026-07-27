@@ -1,6 +1,7 @@
 using SDL3;
 using Substance.Core;
 using Substance.Logging;
+using Substance.Maths;
 
 namespace Substance;
 
@@ -9,10 +10,10 @@ public class Window : IDisposable
     public event Action<double>? Update;
     public event Action<double>? Render;
 
-    public event Action<PropertyChangedArgs<Vector2Int>>? SizeChanged;
+    public event Action<PropertyChangedArgs<Vector2<int>>>? SizeChanged;
 
     public IntPtr Pointer { get; }
-    public Vector2Int Size { get; set
+    public Vector2<int> Size { get; set
         {
             if (field == value)
             {

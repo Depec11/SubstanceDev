@@ -4,7 +4,7 @@ namespace Substance.Graphics;
 
 public class Viewport
 {
-    public Vector2 Position { get; set
+    public Vector2<float> Position { get; set
         {
             if (value == field)
             {
@@ -14,8 +14,8 @@ public class Viewport
             field = value;
 
             Update();
-        } } = Vector2.Zero;
-    public Vector2 Size { get; set
+        } } = Vector2<float>.Zero;
+    public Vector2<float> Size { get; set
         {
             if (value == field)
             {
@@ -25,7 +25,7 @@ public class Viewport
             field = value;
 
             Update();
-        } } = Vector2.One;
+        } } = Vector2<float>.One;
     public float Rotation { get; set
         {
             if (value == field)
@@ -45,9 +45,7 @@ public class Viewport
 
     public Viewport()
     {
-        Size = new Vector2(Application.MainWindow.Size.X, Application.MainWindow.Size.Y);
-
-        Application.MainWindow.SizeChanged += (args) => Size = new Vector2(args.NewValue.X, args.NewValue.Y);
+        Size = new Vector2<float>(Application.MainWindow.Size.X, Application.MainWindow.Size.Y);
 
         Update();
     }

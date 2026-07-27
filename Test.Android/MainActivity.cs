@@ -1,5 +1,6 @@
 using Android.Content.PM;
 using Android.Views;
+using Substance.Android;
 using static Android.Content.PM.ConfigChanges;
 using SDLActivity = Org.Libsdl.App.SDLActivity;
 
@@ -45,7 +46,7 @@ public class MainActivity : SDLActivity
     {
         base.Main();
 
-        var app = new Application();
+        var app = new AndroidApplication();
 
         app.Exec();
     }

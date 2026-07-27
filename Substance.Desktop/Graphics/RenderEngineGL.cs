@@ -1,11 +1,12 @@
-#if !ANDROID
-
 using SDL3;
 using Silk.NET.OpenGL;
+using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
+using Shader = Substance.Graphics.Shader;
+using ShaderType = Substance.Graphics.ShaderType;
 
-namespace Substance.Graphics;
+namespace Substance.Desktop.Graphics;
 
 public class RenderEngineGL : RenderEngine
 {
@@ -64,18 +65,18 @@ public class RenderEngineGL : RenderEngine
         Initialize();
     }
 
-    internal override void BeforeDraw()
+    protected override void BeforeDrawOverride()
     {
         _gl.Clear(ClearBufferMask.ColorBufferBit);
     }
 
-    internal override void AfterDraw()
+    protected override void AfterDrawOverride()
     {
         SDL.GLSwapWindow(_windowPtr);
     }
 
 #if DEBUG
-    internal unsafe override void DrawTestRect()
+    protected unsafe override void DrawTestRectOverride()
     {
         _gl.BindVertexArray(_vao);
         _gl.UseProgram(_program);
@@ -88,7 +89,7 @@ public class RenderEngineGL : RenderEngine
     }
 #endif
 
-    internal unsafe override void DrawTexture(Texture texture, in Matrix3x2 transform, in Vector3 modulate)
+    protected unsafe override void DrawTextureOverride(uint texture, in Matrix3x2 transform, in Vector3<float> modulate)
     {
         if (_textureRectProgram is 0)
         {
@@ -106,9 +107,9 @@ public class RenderEngineGL : RenderEngine
             return;
         }
 
-        if (!_textureCaches.TryGetValue(texture.Tid, out var textureId))
+        if (!_textureCaches.TryGetValue(texture, out var textureId))
         {
-            Log.Warning($"[{nameof(RenderEngineGL)}] 未加载纹理 {texture.Tid}");
+            Log.Warning($"[{nameof(RenderEngineGL)}] 未加载纹理 {texture}");
 
             return;
         }
@@ -154,7 +155,7 @@ public class RenderEngineGL : RenderEngine
         _gl.BindVertexArray(0);
     }
 
-    internal override void LoadShader(uint shader, ShaderType type, string source)
+    protected override void LoadShaderOverride(uint shader, ShaderType type, string source)
     {
         if (_shaderCaches.ContainsKey(shader))
         {
@@ -168,7 +169,7 @@ public class RenderEngineGL : RenderEngine
         Log.Info($"[{nameof(RenderEngineGL)}] 加载着色器 {shader} 成功");
     }
 
-    internal unsafe override void LoadTexture(uint texture, byte[] data, uint width, uint height)
+    protected unsafe override void LoadTextureOverride(uint texture, byte[] data, uint width, uint height)
     {
         if (_textureCaches.ContainsKey(texture))
         {
@@ -211,7 +212,7 @@ public class RenderEngineGL : RenderEngine
         Log.Info($"[{nameof(RenderEngineGL)}] 加载纹理 {texture} 成功");
     }
 
-    internal override void UnloadShader(uint shader)
+    protected override void UnloadShaderOverride(uint shader)
     {
         if (_shaderCaches.TryGetValue(shader, out uint value))
         {
@@ -222,7 +223,7 @@ public class RenderEngineGL : RenderEngine
         }
     }
 
-    internal override void UnloadTexture(uint texture)
+    protected override void UnloadTextureOverride(uint texture)
     {
         if (_textureCaches.TryGetValue(texture, out uint value))
         {
@@ -267,7 +268,7 @@ public class RenderEngineGL : RenderEngine
         Log.Info($"[{nameof(RenderEngineGL)}] 销毁成功");
     }
 
-    protected override void OnViewportSizeChangedOverride(Vector2Int size)
+    protected override void OnViewportSizeChangedOverride(Vector2<int> size)
     {
         _gl.Viewport(0, 0, (uint)size.X, (uint)size.Y);
     }
@@ -296,8 +297,8 @@ public class RenderEngineGL : RenderEngine
         );
         _rectMesh = (vao, vbo, ebo);
 
-        var vertexSource = Assets.ReadText(new Uri("assets://Substance/Assets/Shaders/OpenGL/SpriteUnlit.vert"));
-        var fragmentSource = Assets.ReadText(new Uri("assets://Substance/Assets/Shaders/OpenGL/SpriteUnlit.frag"));
+        var vertexSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.vert"));
+        var fragmentSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.frag"));
         var vertex = LoadShader(vertexSource ?? "", ShaderType.Vertex);
         var fragment = LoadShader(fragmentSource ?? "", ShaderType.Fragment);
         _textureRectProgram = LoadProgram(vertex, fragment);
@@ -476,5 +477,3 @@ public class RenderEngineGL : RenderEngine
         }
     }
 }
-
-#endif

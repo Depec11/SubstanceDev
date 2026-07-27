@@ -6,9 +6,13 @@ public class RenderingServer : IDisposable
 {
     public static RenderEngine Current { get; private set; } = new RenderEngine();
 
+    private Func<GraphicApi, RenderEngine>? _createRenderEngine = null;
     private bool _disposed = false;
-
-    internal RenderingServer() {}
+    
+    internal RenderingServer(Func<GraphicApi, RenderEngine> createRenderEngine)
+    {
+        _createRenderEngine = createRenderEngine;
+    }
 
     ~RenderingServer()
     {
@@ -24,17 +28,7 @@ public class RenderingServer : IDisposable
 
         Current.Dispose();
 
-        Current = api switch
-        {
-            GraphicApi.None => new RenderEngine(),
-            GraphicApi.OpenGL => 
-#if ANDROID
-            new RenderEngineGLES(),
-#else
-            new RenderEngineGL(),
-#endif
-            _ => throw new Exception($"未支持的渲染API: {api}"),
-        };
+        Current = _createRenderEngine is null ? new RenderEngine() : _createRenderEngine(api);
 
         Log.Info($"[{nameof(RenderingServer)}] 渲染引擎已切换为 {api}");
     }

@@ -1,10 +1,11 @@
 using Substance.Graphics;
+using Substance.Maths;
 
 namespace Substance;
 
 public class WindowOptions
 {
-    public Vector2Int Size = 
+    public Vector2<int> Size = 
 #if ANDROID
     new(0, 0);
 #else

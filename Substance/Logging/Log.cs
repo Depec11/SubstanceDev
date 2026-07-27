@@ -8,10 +8,11 @@ public static class Log
     private static readonly SimpleLogger s_logger;
 
     static Log() {
-#if !ANDROID
-        Console.InputEncoding = Encoding.UTF8;
-        Console.OutputEncoding = Encoding.UTF8;
-#endif
+        if (!OperatingSystem.IsAndroid())
+        {
+            Console.InputEncoding = Encoding.UTF8;
+            Console.OutputEncoding = Encoding.UTF8;
+        }
         
 
         s_logger = new SimpleLogger();
