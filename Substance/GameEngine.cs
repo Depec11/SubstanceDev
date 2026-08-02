@@ -11,7 +11,9 @@ public class GameEngine : IDisposable
     private bool _disposed = false;
     
     private Texture? _icon;
-    private Matrix3x2 _matrix;
+    private Matrix3x2 _iconMatrix;
+    private Texture? _text;
+    private Matrix3x2 _textMatrix;
     private static readonly Vector3<float> s_modulate = Vector3<float>.One;
 
     internal GameEngine(RenderingServer renderingServer)
@@ -30,15 +32,21 @@ public class GameEngine : IDisposable
     internal void Initialize()
     {
         _icon = new Texture(new Uri("assets://Substance/Assets/Icon.png"));
-    
-        // _matrix = Matrix3x2.Make(new Vector2<float>(Application.MainWindow.Size.X, Application.MainWindow.Size.Y) / 2, 0, new Vector2<float>(_icon.Width, _icon.Height));
+        _text = new Texture();
+
+        Vector2<int> textSize = new();
+
+        RenderingServer.Current.RenderString("单质", _text.Tid, 16, new Color(255, 255, 255, 255), new Color(100, 149, 237, 255), ref textSize);
+
         if (OperatingSystem.IsAndroid())
         {
-            _matrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(2), new Vector2<float>(_icon.Width, _icon.Height));
+            _iconMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(2), new Vector2<float>(_icon.Width, _icon.Height));
+            _textMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(2), new Vector2<float>(textSize.X, textSize.Y));
         }
         else
         {
-            _matrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(_icon.Width, _icon.Height));
+            _iconMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(_icon.Width, _icon.Height));
+            _textMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(textSize.X, textSize.Y));
         }
     }
 
@@ -48,9 +56,10 @@ public class GameEngine : IDisposable
     {
         RenderingServer.Current.BeforeDraw();
 #if DEBUG
-        // RenderingServer.Current.DrawTestRect();
+        RenderingServer.Current.DrawTestRect();
 #endif
-        RenderingServer.Current.DrawTexture(_icon!.Tid, _viewport.GetSvp(_matrix), s_modulate);
+        RenderingServer.Current.DrawTexture(_icon!.Tid, _viewport.GetSvp(_iconMatrix), s_modulate);
+        RenderingServer.Current.DrawString(_text!.Tid, _viewport.GetSvp(_textMatrix));
         RenderingServer.Current.AfterDraw();
     }
 

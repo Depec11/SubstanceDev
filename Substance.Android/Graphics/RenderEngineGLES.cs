@@ -1,10 +1,12 @@
 using SDL3;
 using Silk.NET.OpenGLES;
 using Substance.Graphics;
+using Substance.Graphics.TextRendering;
 using Substance.Logging;
 using Substance.Maths;
 using Shader = Substance.Graphics.Shader;
 using ShaderType = Substance.Graphics.ShaderType;
+using GLShaderType = Silk.NET.OpenGLES.ShaderType;
 
 namespace Substance.Android.Graphics;
 
@@ -13,6 +15,8 @@ public class RenderEngineGLES : RenderEngine
     private readonly IntPtr _glContext;
     private readonly GL _gl;
     private readonly GLWrapper _glWrapper;
+    private readonly TextRenderEngineFT _textRenderEngine;
+    
     private readonly Dictionary<uint, uint> _shaderCaches = [];
     private readonly Dictionary<uint, uint> _textureCaches = [];
 
@@ -28,6 +32,8 @@ public class RenderEngineGLES : RenderEngine
 
     internal RenderEngineGLES() : base(GraphicApi.OpenGL)
     {
+        _textRenderEngine = new TextRenderEngineFT(new Uri("assets://Substance/Assets/QynFlavorAltCHS-Regular.ttf"), 16);
+
         var window = Application.MainWindow;
 
         _glContext = SDL.GLCreateContext(_windowPtr);
@@ -153,6 +159,56 @@ public class RenderEngineGLES : RenderEngine
         _gl.BindTexture(TextureTarget.Texture2D, 0);
 
         _gl.BindVertexArray(0);
+    }
+
+    protected override void MeasureStringOverride(string text, uint fontSize, ref Vector2<int> size)
+    {
+        Vector2<int> startPosition = new(), endPosition = new();
+        _textRenderEngine.MesasureString(text, fontSize, ref startPosition, ref endPosition);
+        size = endPosition - startPosition;
+    }
+
+    protected unsafe override void RenderStringOverride(string text, uint texture, uint fontSize, Color foregroundColor, Color backgroundColor, ref Vector2<int> size)
+    {
+        byte[] data= [];
+        _textRenderEngine.RenderString(text, fontSize, foregroundColor, backgroundColor, ref data, ref size);
+    
+        var textureId = _textureCaches[texture];
+
+        _gl.ActiveTexture(TextureUnit.Texture0);
+        _gl.BindTexture(TextureTarget.Texture2D, textureId);
+
+        var textureWrapS = (int)TextureWrapMode.Repeat;
+        var textureWrapT = (int)TextureWrapMode.Repeat;
+        var textureMinFilter = (int)TextureMinFilter.Linear;
+        var textureMagFilter = (int)TextureMagFilter.Linear;
+
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapS, ref textureWrapS);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureWrapT, ref textureWrapT);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMinFilter, ref textureMinFilter);
+        _gl.TexParameterI(GLEnum.Texture2D, GLEnum.TextureMagFilter, ref textureMagFilter);
+        
+        fixed (byte* pData = data)
+        {
+            _gl.TexImage2D(
+                TextureTarget.Texture2D,
+                0,
+                InternalFormat.Rgba,
+                (uint)size.X,
+                (uint)size.Y,
+                0,
+                PixelFormat.Rgba,
+                PixelType.UnsignedByte,
+                pData
+            );
+        }
+
+        _gl.BindTexture(TextureTarget.Texture2D, 0);
+    }
+
+    protected override void DrawStringOverride(uint texture, in Matrix3x2 transform)
+    {
+        DrawTextureOverride(texture, transform, Vector3<float>.One);
     }
 
     protected override void LoadShaderOverride(uint shader, ShaderType type, string source)
@@ -297,8 +353,8 @@ public class RenderEngineGLES : RenderEngine
         );
         _rectMesh = (vao, vbo, ebo);
 
-        var vertexSource = Assets.ReadText(new Uri("assets://Substance.Android/Assets/Shaders/OpenGLES/SpriteUnlit.vert"));
-        var fragmentSource = Assets.ReadText(new Uri("assets://Substance.Android/Assets/Shaders/OpenGLES/SpriteUnlit.frag"));
+        var vertexSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.vert"));
+        var fragmentSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.frag"));
         var vertex = LoadShader(vertexSource ?? "", ShaderType.Vertex);
         var fragment = LoadShader(fragmentSource ?? "", ShaderType.Fragment);
         _textureRectProgram = LoadProgram(vertex, fragment);
@@ -389,12 +445,12 @@ public class RenderEngineGLES : RenderEngine
 
         return id;
 
-        static Silk.NET.OpenGLES.ShaderType SwithToOpenGLShaderType(ShaderType type)
+        static GLShaderType SwithToOpenGLShaderType(ShaderType type)
         {
             return type switch
             {
-                ShaderType.Vertex => Silk.NET.OpenGLES.ShaderType.VertexShader,
-                ShaderType.Fragment => Silk.NET.OpenGLES.ShaderType.FragmentShader,
+                ShaderType.Vertex => GLShaderType.VertexShader,
+                ShaderType.Fragment => GLShaderType.FragmentShader,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
             };
         }
@@ -417,7 +473,7 @@ public class RenderEngineGLES : RenderEngine
             1, 2, 3
         };
 
-        _vao = LoadMesh(vertices, indices, 2, [2], out var vbo, out var ebo);
+        _vao = LoadMesh(vertices, indices, 4, [2], out var vbo, out var ebo);
         _vbo = vbo;
         _ebo = ebo;
 

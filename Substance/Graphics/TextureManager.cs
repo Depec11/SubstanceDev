@@ -8,7 +8,7 @@ internal static class TextureManager
     private static uint s_tid = 0;
     private static readonly Dictionary<Uri, TextureCache> s_caches = [];
 
-    internal static uint LoadTexture(Texture texture, Uri uri, out ImageResult? data)
+    internal static uint LoadTexture(Uri uri, out ImageResult? data)
     {
         if (s_caches.TryGetValue(uri, out var cache))
         {
@@ -48,6 +48,15 @@ internal static class TextureManager
         }
     }
 
+    internal static uint RequestTid()
+    {
+        ++s_tid;
+
+        RenderingServer.Current.LoadTexture(s_tid, [], 0, 0);
+
+        return s_tid;
+    }
+
     internal static void UnloadTexture(Texture texture)
     {
         foreach (var (key, cache) in s_caches)
@@ -68,9 +77,14 @@ internal static class TextureManager
         }
     }
 
+    internal static void FreeTid(uint tid)
+    {
+        RenderingServer.Current.UnloadTexture(tid);
+    }
+
     internal static byte[] GetData(uint tid)
     {
-        foreach (var (key, cache) in s_caches)
+        foreach (var (_, cache) in s_caches)
         {
             if (cache.Tid == tid)
             {

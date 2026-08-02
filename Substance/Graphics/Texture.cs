@@ -12,14 +12,14 @@ public class Texture : IDisposable
 
     private bool _disposed = false;
 
-    internal Texture(uint tid)
+    public Texture()
     {
-        Tid = tid;
+        Tid = TextureManager.RequestTid();
     }
 
     public Texture(Uri uri)
     {
-        Tid = TextureManager.LoadTexture(this, uri, out var data);
+        Tid = TextureManager.LoadTexture(uri, out var data);
         
         if (data is null)
         {

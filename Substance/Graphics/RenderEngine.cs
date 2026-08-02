@@ -45,7 +45,14 @@ public class RenderEngine : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void DrawTexture(uint texture, in Matrix3x2 transform, in Vector3<float> modulate) => DrawTextureOverride(texture, transform, modulate);
 
-    // internal void DrawString(uint font, string text, int size, in Matrix3x2 transform, in Vector3 color) {}
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void MeasureString(string text, uint fontSize, ref Vector2<int> size) => MeasureStringOverride(text, fontSize, ref size);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void RenderString(string text, uint texture, uint fontSize, Color foregroundColor, Color backgroundColor, ref Vector2<int> size) => RenderStringOverride(text, texture, fontSize, foregroundColor, backgroundColor, ref size);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void DrawString(uint texture, in Matrix3x2 transform) => DrawStringOverride(texture, transform);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void LoadShader(uint shader, ShaderType type, string source) => LoadShaderOverride(shader, type, source);
@@ -64,6 +71,12 @@ public class RenderEngine : IDisposable
     protected virtual void AfterDrawOverride() {}
 
     protected virtual void DrawTextureOverride(uint texture, in Matrix3x2 transform, in Vector3<float> modulate) {}
+
+    protected virtual void MeasureStringOverride(string text, uint fontSize, ref Vector2<int> size) {}
+
+    protected virtual void RenderStringOverride(string text, uint texture, uint fontSize, Color foregroundColor, Color backgroundColor, ref Vector2<int> size) {}
+
+    protected virtual void DrawStringOverride(uint texture, in Matrix3x2 transform) {}
 
     protected virtual void LoadShaderOverride(uint shader, ShaderType type, string source) {}
 

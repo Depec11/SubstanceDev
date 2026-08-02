@@ -70,7 +70,7 @@ public class Viewport
         _pm = new Matrix3x2(
             1 / halfWidth,  0,
             0,             -1 / halfHeight,
-            0,              0
+            -1,              1
         );
 
         _vp = _vm * _pm;

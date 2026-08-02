@@ -69,7 +69,7 @@ internal static class ShaderManager
 
     internal static string? GetSource(uint sid)
     {
-        foreach (var (key, cache) in s_caches)
+        foreach (var (_, cache) in s_caches)
         {
             if (cache.Sid == sid)
             {
