@@ -12,6 +12,9 @@ namespace Substance.Desktop.Graphics;
 
 public class RenderEngineGL : RenderEngine
 {
+    private const string c_platform = "Desktop";
+    private const string c_api = "OpenGL";
+
     private readonly IntPtr _glContext;
     private readonly GL _gl;
     private readonly GLWrapper _glWrapper;
@@ -353,8 +356,8 @@ public class RenderEngineGL : RenderEngine
         );
         _rectMesh = (vao, vbo, ebo);
 
-        var vertexSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.vert"));
-        var fragmentSource = Assets.ReadText(new Uri("assets://Substance.Desktop/Assets/Shaders/OpenGL/SpriteUnlit.frag"));
+        var vertexSource = Assets.ReadText(new Uri($"assets://Substance.{c_platform}/Assets/Shaders/{c_api}/SpriteUnlit.vert"));
+        var fragmentSource = Assets.ReadText(new Uri($"assets://Substance.{c_platform}/Assets/Shaders/{c_api}/SpriteUnlit.frag"));
         var vertex = LoadShader(vertexSource ?? "", ShaderType.Vertex);
         var fragment = LoadShader(fragmentSource ?? "", ShaderType.Fragment);
         _textureRectProgram = LoadProgram(vertex, fragment);
