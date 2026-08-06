@@ -4,31 +4,28 @@ namespace Substance.Graphics;
 
 public class Texture : IDisposable
 {
-    public byte[] Data => TextureManager.GetData(Tid);
+    public byte[] Data => AudioManager.GetData(Tid).Data;
+    public int Width => AudioManager.GetData(Tid).Width;
+    public int Height => AudioManager.GetData(Tid).Height;
 
     internal readonly uint Tid;
-    public readonly uint Width;
-    public readonly uint Height;
 
     private bool _disposed = false;
 
     public Texture()
     {
-        Tid = TextureManager.RequestTid();
+        Tid = AudioManager.RequestTid();
     }
 
     public Texture(Uri uri)
     {
-        Tid = TextureManager.LoadTexture(uri, out var data);
+        Tid = AudioManager.LoadTexture(uri, out var data);
         
         if (data is null)
         {
             Log.Warning($"创建纹理 {uri} 失败");
             return;
         }
-
-        Width = (uint)data.Width;
-        Height = (uint)data.Height;
     }
 
     ~Texture()
@@ -45,7 +42,7 @@ public class Texture : IDisposable
 
         _disposed = true;
         
-        TextureManager.UnloadTexture(this);
+        AudioManager.UnloadTexture(this);
         
         GC.SuppressFinalize(this);
     }

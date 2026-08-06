@@ -81,11 +81,11 @@ internal static class ShaderManager
 
     internal class ShaderCache : IDisposable
     {
-        public uint Sid;
+        public readonly uint Sid;
         public uint References = 0;
-        public string? Source = null;
+        public readonly string? Source = null;
 
-        private bool disposed = false;
+        private bool _disposed = false;
 
         public ShaderCache(uint tid, string? source = null)
         {
@@ -100,12 +100,12 @@ internal static class ShaderManager
 
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            disposed = true;
+            _disposed = true;
 
             GC.SuppressFinalize(this);
         }

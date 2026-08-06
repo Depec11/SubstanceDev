@@ -3,12 +3,12 @@ using Substance.Logging;
 
 namespace Substance.Graphics;
 
-internal static class TextureManager
+internal static class AudioManager
 {
     private static uint s_tid = 0;
     private static readonly Dictionary<Uri, TextureCache> s_caches = [];
 
-    internal static uint LoadTexture(Uri uri, out ImageResult? data)
+    internal static uint LoadTexture(Uri uri, out TextureData? data)
     {
         if (s_caches.TryGetValue(uri, out var cache))
         {
@@ -29,7 +29,11 @@ internal static class TextureManager
 
         try
         {
-            data = ImageResult.FromStream(stream);
+            var imageResult = ImageResult.FromStream(stream);
+
+            data = new TextureData(imageResult.Width, imageResult.Height, imageResult.Data);
+
+            s_caches[uri] = new(++s_tid, data);
 
             s_caches[uri] = new(++s_tid, data)
             {
@@ -82,28 +86,28 @@ internal static class TextureManager
         RenderingServer.Current.UnloadTexture(tid);
     }
 
-    internal static byte[] GetData(uint tid)
+    internal static TextureData GetData(uint tid)
     {
         foreach (var (_, cache) in s_caches)
         {
             if (cache.Tid == tid)
             {
-                return cache.Data.Data;
+                return cache.Data;
             }
         }
 
-        return [];
+        return TextureData.Empty;
     }
 
     internal class TextureCache : IDisposable
     {
-        public uint Tid;
+        public readonly uint Tid;
         public uint References = 0;
-        public ImageResult Data;
+        public readonly TextureData Data;
 
-        private bool disposed = false;
+        private bool _disposed = false;
 
-        public TextureCache(uint tid, ImageResult data)
+        public TextureCache(uint tid, TextureData data)
         {
             Tid = tid;
             Data = data;
@@ -116,12 +120,12 @@ internal static class TextureManager
 
         public void Dispose()
         {
-            if (disposed)
+            if (_disposed)
             {
                 return;
             }
 
-            disposed = true;
+            _disposed = true;
 
             GC.SuppressFinalize(this);
         }
