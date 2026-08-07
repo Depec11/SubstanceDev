@@ -480,8 +480,8 @@ public class RenderEngineGLES : RenderEngine
         _vbo = vbo;
         _ebo = ebo;
 
-        var vertexShader = LoadShader(ShaderSources.VertexShaderSourceGL, ShaderType.Vertex);
-        var fragmentShader = LoadShader(ShaderSources.FragmentShaderSourceGL, ShaderType.Fragment);
+        var vertexShader = LoadShader(ShaderSources.VertexShaderSourceGLES, ShaderType.Vertex);
+        var fragmentShader = LoadShader(ShaderSources.FragmentShaderSourceGLES, ShaderType.Fragment);
 
         _program = _gl.CreateProgram();
         _gl.AttachShader(_program, vertexShader);
