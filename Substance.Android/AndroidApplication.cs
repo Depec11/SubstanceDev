@@ -5,6 +5,12 @@ namespace Substance.Android;
 
 public class AndroidApplication : Application
 {
+    static AndroidApplication()
+    {
+        Java.Lang.JavaSystem.LoadLibrary("c++_shared");
+        Java.Lang.JavaSystem.LoadLibrary("openal");
+    }
+
     public AndroidApplication(WindowOptions? options = null) : base((api) =>
     {
         return api switch
@@ -12,5 +18,7 @@ public class AndroidApplication : Application
             GraphicApi.OpenGL => new RenderEngineGLES(),
             _ => new RenderEngineGLES()
         };
-    }, options) {}
+    }, options)
+    {
+    }
 }

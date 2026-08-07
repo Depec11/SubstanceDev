@@ -21,7 +21,6 @@ public class Application : IDisposable
         _mainWindow = new(options);
 
         _gameEngine = new GameEngine(new RenderingServer(createRenderEngine));
-        _gameEngine.MakeRenderEngine(options.GraphicApi);
 
         _mainWindow.Update += _gameEngine.Update;
         _mainWindow.Render += _gameEngine.Render;
@@ -41,7 +40,12 @@ public class Application : IDisposable
         Dispose();
     }
 
-    protected virtual void OnCreatedOverride() {}
+    protected virtual void OnCreatedOverride()
+    {
+        Console.WriteLine("Application OnCreatedOverride");
+        _gameEngine.MakeRenderEngine(_mainWindow.GraphicApi);
+        _ = _gameEngine.Initialize();
+    }
 
     public void Dispose()
     {

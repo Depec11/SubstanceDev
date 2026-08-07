@@ -1,11 +1,14 @@
+using Substance.Audio;
 using Substance.Graphics;
+using Substance.Logging;
 using Substance.Maths;
 
 namespace Substance;
 
 public class GameEngine : IDisposable
 {
-    private readonly RenderingServer _renderEngineManager;
+    private readonly RenderingServer _renderingServer;
+    private readonly AudioServer _audioServer;
 
     private readonly Viewport _viewport;
     private bool _disposed = false;
@@ -14,11 +17,13 @@ public class GameEngine : IDisposable
     private Matrix3x2 _iconMatrix;
     private Texture? _text;
     private Matrix3x2 _textMatrix;
+    private SoundSource? _soundSource;
     private static readonly Vector3<float> s_modulate = Vector3<float>.One;
 
     internal GameEngine(RenderingServer renderingServer)
     {
-        _renderEngineManager = renderingServer;
+        _renderingServer = renderingServer;
+        _audioServer = new AudioServer();
 
         _viewport = new();
 
@@ -27,10 +32,17 @@ public class GameEngine : IDisposable
             // _matrix = Matrix3x2.Make(new Vector2<float>(args.NewValue.X, args.NewValue.Y) / 2, 0, new Vector2<float>(_icon!.Width, _icon!.Height));
             _viewport.Size = new Vector2<float>(args.NewValue.X, args.NewValue.Y);
         };
+
+        Log.Info($"[{nameof(GameEngine)}] 初始化完成");
     }
 
-    internal void Initialize()
-    {
+    internal async Task Initialize()
+    {   
+        var task = Task.Run(() =>
+        {
+            _audioServer.MakeAudioEngine(AudioApi.OpenAL);
+        });
+
         _icon = new Texture(new Uri("assets://Substance/Assets/Icon.png"));
         _text = new Texture();
 
@@ -48,6 +60,13 @@ public class GameEngine : IDisposable
             _iconMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(_icon.Width, _icon.Height));
             _textMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(textSize.X, textSize.Y));
         }
+
+        await task;
+
+        _soundSource = new SoundSource(new Uri("assets://Substance/Assets/Theme.ogg"));
+        AudioServer.Current.PlaySound(_soundSource.Sid);
+
+        Log.Info($"[{nameof(GameEngine)}] 初始化完成");
     }
 
     internal void Update(double deltaTime) {}
@@ -65,9 +84,7 @@ public class GameEngine : IDisposable
 
     internal void MakeRenderEngine(GraphicApi api)
     {
-        _renderEngineManager.MakeRenderEngine(api);
-    
-        Initialize();
+        _renderingServer.MakeRenderEngine(api);
     }
 
     public void Dispose()
@@ -80,8 +97,10 @@ public class GameEngine : IDisposable
         _disposed = true;
 
         _icon?.Dispose();
+        _text?.Dispose();
+        _soundSource?.Dispose();
 
-        _renderEngineManager.Dispose();
+        _renderingServer.Dispose();
     
         GC.SuppressFinalize(this);
     }

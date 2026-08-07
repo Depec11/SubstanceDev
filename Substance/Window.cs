@@ -1,5 +1,6 @@
 using SDL3;
 using Substance.Core;
+using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
 
@@ -31,6 +32,7 @@ public class Window : IDisposable
         } }
     public string Title { get; set; }
     public float RefreshRate { get; }
+    public GraphicApi GraphicApi { get; }
     
     private bool _disposed = false;
     private bool _isRunning = true;
@@ -38,6 +40,7 @@ public class Window : IDisposable
     public Window(WindowOptions? options = null)
     {
         options ??= new WindowOptions();
+        GraphicApi = options.GraphicApi;
 
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Events))
         {
