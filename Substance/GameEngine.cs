@@ -41,6 +41,9 @@ public class GameEngine : IDisposable
         var task = Task.Run(() =>
         {
             _audioServer.MakeAudioEngine(AudioApi.OpenAL);
+
+            // _soundSource = new SoundSource(new Uri("assets://Substance/Assets/Theme.ogg"));
+            // AudioServer.Current.PlaySound(_soundSource.Sid);
         });
 
         _icon = new Texture(new Uri("assets://Substance/Assets/Icon.png"));
@@ -62,6 +65,8 @@ public class GameEngine : IDisposable
         }
 
         await task;
+
+        _audioServer.MakeAudioEngine(AudioApi.OpenAL);
 
         _soundSource = new SoundSource(new Uri("assets://Substance/Assets/Theme.ogg"));
         AudioServer.Current.PlaySound(_soundSource.Sid);

@@ -24,8 +24,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Substance.Desktop\Substance.Desktop.csproj" />
     <ProjectReference Include="..\Test\Test.csproj" />
+    <ProjectReference Include="..\Substance.Windows\Substance.Windows.csproj" />
   </ItemGroup>
 
 </Project>

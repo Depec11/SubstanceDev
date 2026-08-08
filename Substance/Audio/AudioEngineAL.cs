@@ -32,8 +32,15 @@ public class AudioEngineAL : AudioEngine
             return;
         }
 
-        _alc.MakeContextCurrent(context);
+        var result = _alc.MakeContextCurrent(context);
         
+        if (!result)
+        {
+            Log.Error($"[{nameof(AudioEngineAL)}] 初始化失败：无法设置上下文");
+        
+            return;
+        }
+
         Log.Info($"[{nameof(AudioEngineAL)}] 初始化成功");
     }
 
@@ -44,8 +51,12 @@ public class AudioEngineAL : AudioEngine
             return;
         }
 
+        var errBefore = _al.GetError();
         var buffer = _al.GenBuffer();
+        var errAfter = _al.GetError();
+
         var source = _al.GenSource();
+        errAfter = _al.GetError();
 
         BufferFormat format;
 
@@ -64,7 +75,6 @@ public class AudioEngineAL : AudioEngine
                 format = BufferFormat.Stereo16;
                 break;
             default:
-                Log.Warning($"[{nameof(AudioEngineAL)}] 加载音频失败：不支持的格式 ({data.Channels}通道, {data.BitsPerSample}位)");
                 return;
         }
 
@@ -72,8 +82,11 @@ public class AudioEngineAL : AudioEngine
         {
             _al.BufferData(buffer, format, pData, data.Data.Length, data.SampleRate);
         }
+        errAfter = _al.GetError();
 
         _al.SetSourceProperty(source, SourceInteger.Buffer, buffer);
+        errAfter = _al.GetError();
+
         _al.SetSourceProperty(source, SourceFloat.Gain, 1.0f);
         _al.SetSourceProperty(source, SourceBoolean.Looping, false);
 

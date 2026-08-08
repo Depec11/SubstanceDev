@@ -6,7 +6,7 @@
     <OutputType>Exe</OutputType>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationId>com.companyname.Test.Android</ApplicationId>
+    <ApplicationId>com.Substance.Test.Android</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     
@@ -17,6 +17,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Release'">
+    <!-- <TrimMode>Full</TrimMode> -->
+    <!-- <PublishTrimmed>false</PublishTrimmed>
+    <RunAOTCompilation>false</RunAOTCompilation> -->
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
     <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>

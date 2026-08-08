@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="SDL3-CS.Windows" Version="3.4.14" />
     <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.23.1" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
   </ItemGroup>
@@ -18,7 +19,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Assets\**\*">
-      <LogicalName>Substance.Desktop/Assets/$([System.String]::Copy('%(RecursiveDir)').Replace('\', '/'))%(Filename)%(Extension)</LogicalName>
+      <LogicalName>Substance.Windows/Assets/$([System.String]::Copy('%(RecursiveDir)').Replace('\', '/'))%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

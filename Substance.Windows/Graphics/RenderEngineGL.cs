@@ -8,11 +8,11 @@ using Shader = Substance.Graphics.Shader;
 using ShaderType = Substance.Graphics.ShaderType;
 using GLShaderType = Silk.NET.OpenGL.ShaderType;
 
-namespace Substance.Desktop.Graphics;
+namespace Substance.Windows.Graphics;
 
 public class RenderEngineGL : RenderEngine
 {
-    private const string c_platform = "Desktop";
+    private const string c_platform = "Windows";
     private const string c_api = "OpenGL";
 
     private readonly IntPtr _glContext;

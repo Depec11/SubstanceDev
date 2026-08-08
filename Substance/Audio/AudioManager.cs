@@ -27,16 +27,19 @@ internal static class AudioManager
             return 0;
         }
 
-        try
-        {
-            using var memoryStream = new MemoryStream();
-            stream.CopyTo(memoryStream);
-            memoryStream.Position = 0;
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        memoryStream.Position = 0;
 
-            using var vorbisReader = new VorbisReader(memoryStream);
-            
-            var sampleRate = vorbisReader.SampleRate;
+        var headerBytes = new byte[4];
+        var readCount = memoryStream.Read(headerBytes, 0, 4);
+        memoryStream.Position = 0;
+        var isOggS = readCount == 4 && headerBytes[0] == 0x4F && headerBytes[1] == 0x67 && headerBytes[2] == 0x67 && headerBytes[3] == 0x53;
+
+        using var vorbisReader = new VorbisReader(memoryStream);
+        var sampleRate = vorbisReader.SampleRate;
         var channels = vorbisReader.Channels;
+
         var buffer = new float[vorbisReader.TotalSamples * channels];
         vorbisReader.ReadSamples(buffer, 0, buffer.Length);
 
@@ -50,22 +53,15 @@ internal static class AudioManager
 
         data = new AudioData(sampleRate, channels, 16, pcmData);
 
-            s_caches[uri] = new(++s_sid, data)
-            {
-                References = 1,
-            };
-
-            AudioServer.Current.LoadSound(s_sid, data);
-
-            return s_sid;
-        }
-        catch (Exception e)
+        s_caches[uri] = new(++s_sid, data)
         {
-            Log.Warning($"加载纹理 {uri} 失败: {e}");
+            References = 1,
+        };
 
-            return 0;
-        }
-    }
+        AudioServer.Current.LoadSound(s_sid, data);
+
+        return s_sid;
+}
 
     internal static void UnloadSound(uint sid)
     {

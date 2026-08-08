@@ -1,12 +1,12 @@
-﻿using Substance.Desktop;
+﻿using Substance.Windows;
 
-namespace Test.Desktop;
+namespace Test.Windows;
 
 internal class Program
 {
     public static void Main(string[] args)
     {
-        var app = new DesktopApplication();
+        var app = new WindowsApplication();
 
         app.Exec();
     }

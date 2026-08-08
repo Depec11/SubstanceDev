@@ -1,11 +1,11 @@
-using Substance.Desktop.Graphics;
+using Substance.Windows.Graphics;
 using Substance.Graphics;
 
-namespace Substance.Desktop;
+namespace Substance.Windows;
 
-public class DesktopApplication : Application
+public class WindowsApplication : Application
 {
-    public DesktopApplication(WindowOptions? options = null) : base((api) =>
+    public WindowsApplication(WindowOptions? options = null) : base((api) =>
     {
         return api switch
         {
