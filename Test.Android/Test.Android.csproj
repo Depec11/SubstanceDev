@@ -17,9 +17,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="$(Configuration) == 'Release'">
-    <!-- <TrimMode>Full</TrimMode> -->
-    <!-- <PublishTrimmed>false</PublishTrimmed>
-    <RunAOTCompilation>false</RunAOTCompilation> -->
     <IlcOptimizationPreference>Size</IlcOptimizationPreference>
     <AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
     <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>

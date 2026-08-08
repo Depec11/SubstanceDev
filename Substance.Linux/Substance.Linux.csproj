@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- 与 Substance.Windows 共享源码，仅通过该常量切换命名空间与资产路径前缀 -->
+    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SDL3-CS.Linux" Version="3.4.14" />
+    <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.23.1" />
+    <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Substance\Substance.csproj" />
+  </ItemGroup>
+
+  <!-- 链接 Substance.Windows 的共享源码（RenderEngineGL 等桌面 OpenGL 实现） -->
+  <ItemGroup>
+    <Compile Include="..\Substance.Windows\Graphics\**\*.cs" Link="Graphics\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- 链接共享资产，但以 Substance.Linux 名义嵌入，匹配 assets://Substance.Linux/... 解析 -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\Substance.Windows\Assets\**\*">
+      <Link>Assets\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <LogicalName>Substance.Linux/Assets/$([System.String]::Copy('%(RecursiveDir)').Replace('\', '/'))%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

@@ -8,11 +8,19 @@ using Shader = Substance.Graphics.Shader;
 using ShaderType = Substance.Graphics.ShaderType;
 using GLShaderType = Silk.NET.OpenGL.ShaderType;
 
+#if LINUX
+namespace Substance.Linux.Graphics;
+#else
 namespace Substance.Windows.Graphics;
+#endif
 
 public class RenderEngineGL : RenderEngine
 {
+#if LINUX
+    private const string c_platform = "Linux";
+#else
     private const string c_platform = "Windows";
+#endif
     private const string c_api = "OpenGL";
 
     private readonly IntPtr _glContext;
