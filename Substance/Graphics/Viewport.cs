@@ -4,6 +4,9 @@ namespace Substance.Graphics;
 
 public class Viewport
 {
+    public static Viewport Current => _current;
+    private static Viewport _current = null!;
+
     public Vector2<float> Position { get; set
         {
             if (value == field)
@@ -45,6 +48,8 @@ public class Viewport
 
     public Viewport()
     {
+        _current = this;
+
         Size = new Vector2<float>(Application.MainWindow.Size.X, Application.MainWindow.Size.Y);
 
         Update();

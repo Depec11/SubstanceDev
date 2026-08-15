@@ -37,9 +37,9 @@ public struct Vector3<T> where T : struct, INumber<T>
         return a.X != b.X || a.Y != b.Y || a.Z != b.Z;
     }
 
-    public static Vector3<T> operator /(Vector3<T> v, T f)
+    public static Vector3<T> operator +(Vector3<T> v, T f)
     {
-        return new(v.X / f, v.Y / f, v.Z / f);
+        return new(v.X + f, v.Y + f, v.Z + f);
     }
 
     public static Vector3<T> operator -(Vector3<T> v, T f)
@@ -47,9 +47,34 @@ public struct Vector3<T> where T : struct, INumber<T>
         return new(v.X - f, v.Y - f, v.Z - f);
     }
 
+    public static Vector3<T> operator *(Vector3<T> v, T f)
+    {
+        return new(v.X * f, v.Y * f, v.Z * f);
+    }
+
+    public static Vector3<T> operator /(Vector3<T> v, T f)
+    {
+        return new(v.X / f, v.Y / f, v.Z / f);
+    }
+
+    public static Vector3<T> operator +(Vector3<T> v1, Vector3<T> v2)
+    {
+        return new(v1.X + v2.X, v1.Y + v2.Y, v1.Z + v2.Z);
+    }
+
     public static Vector3<T> operator -(Vector3<T> v1, Vector3<T> v2)
     {
         return new(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
+    }
+
+    public static Vector3<T> operator *(Vector3<T> v1, Vector3<T> v2)
+    {
+        return new(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z);
+    }
+
+    public static Vector3<T> operator /(Vector3<T> v1, Vector3<T> v2)
+    {
+        return new(v1.X / v2.X, v1.Y / v2.Y, v1.Z / v2.Z);
     }
 
     public readonly bool Equals(Vector3<T> other)

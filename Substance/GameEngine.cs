@@ -1,24 +1,27 @@
 using Substance.Audio;
+using Substance.Core;
 using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
+using Substance.Nodes;
 
 namespace Substance;
 
 public class GameEngine : IDisposable
 {
+    private static readonly Vector3<float> s_modulate = Vector3<float>.One;
+
     private readonly RenderingServer _renderingServer;
     private readonly AudioServer _audioServer;
-
     private readonly Viewport _viewport;
-    private bool _disposed = false;
+    private readonly SceneRoot _root = new();
     
     private Texture? _icon;
     private Matrix3x2 _iconMatrix;
     private Texture? _text;
     private Matrix3x2 _textMatrix;
     private SoundSource? _soundSource;
-    private static readonly Vector3<float> s_modulate = Vector3<float>.One;
+    private bool _disposed = false;
 
     internal GameEngine(RenderingServer renderingServer)
     {
@@ -26,6 +29,8 @@ public class GameEngine : IDisposable
         _audioServer = new AudioServer();
 
         _viewport = new();
+
+        _root.OnEnterTree();
 
         Application.MainWindow.SizeChanged += (args) =>
         {
@@ -41,13 +46,18 @@ public class GameEngine : IDisposable
         var task = Task.Run(() =>
         {
             _audioServer.MakeAudioEngine(AudioApi.OpenAL);
-
-            // _soundSource = new SoundSource(new Uri("assets://Substance/Assets/Theme.ogg"));
-            // AudioServer.Current.PlaySound(_soundSource.Sid);
         });
 
         _icon = new Texture(new Uri("assets://Substance/Assets/Icon.png"));
         _text = new Texture();
+
+        var spriteRenderer = new SpriteRenderer
+        {
+            Texture = _icon,
+            Color = Color.White
+        };
+
+        spriteRenderer.SetParent(_root);
 
         Vector2<int> textSize = new();
 
@@ -55,8 +65,9 @@ public class GameEngine : IDisposable
 
         if (OperatingSystem.IsAndroid())
         {
-            _iconMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(2), new Vector2<float>(_icon.Width, _icon.Height));
-            _textMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(2), new Vector2<float>(textSize.X, textSize.Y));
+            _iconMatrix = Matrix3x2.Create(Vector2<float>.Zero, new Vector2<float>(2), 0, new Vector2<float>(_icon.Width, _icon.Height));
+            _textMatrix = Matrix3x2.Create(Vector2<float>.Zero, new Vector2<float>(2), 0, new Vector2<float>(textSize.X, textSize.Y));
+
         }
         else
         {
@@ -74,7 +85,10 @@ public class GameEngine : IDisposable
         Log.Info($"[{nameof(GameEngine)}] 初始化完成");
     }
 
-    internal void Update(double deltaTime) {}
+    internal void Update(double deltaTime)
+    {
+        _root.OnUpdate(deltaTime);  
+    }
 
     internal void Render(double deltaTime)
     {
@@ -82,8 +96,10 @@ public class GameEngine : IDisposable
 #if DEBUG
         RenderingServer.Current.DrawTestRect();
 #endif
-        RenderingServer.Current.DrawTexture(_icon!.Tid, _viewport.GetSvp(_iconMatrix), s_modulate);
-        RenderingServer.Current.DrawString(_text!.Tid, _viewport.GetSvp(_textMatrix));
+        // RenderingServer.Current.DrawTexture(_icon!.Tid, _viewport.GetSvp(_iconMatrix), s_modulate);
+        // RenderingServer.Current.DrawString(_text!.Tid, _viewport.GetSvp(_textMatrix));
+        _root.OnRendering(deltaTime);
+        
         RenderingServer.Current.AfterDraw();
     }
 
@@ -100,6 +116,8 @@ public class GameEngine : IDisposable
         }
 
         _disposed = true;
+
+        _root.ExitTree();
 
         _icon?.Dispose();
         _text?.Dispose();

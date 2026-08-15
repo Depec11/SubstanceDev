@@ -34,9 +34,9 @@ public struct Vector2<T> where T : struct, INumber<T>
         return a.X != b.X || a.Y != b.Y;
     }
 
-    public static Vector2<T> operator /(Vector2<T> v, T f)
+    public static Vector2<T> operator +(Vector2<T> v, T f)
     {
-        return new(v.X / f, v.Y / f);
+        return new(v.X + f, v.Y + f);
     }
 
     public static Vector2<T> operator -(Vector2<T> v, T f)
@@ -44,9 +44,34 @@ public struct Vector2<T> where T : struct, INumber<T>
         return new(v.X - f, v.Y - f);
     }
 
+    public static Vector2<T> operator *(Vector2<T> v, T f)
+    {
+        return new(v.X * f, v.Y * f);
+    }
+
+    public static Vector2<T> operator /(Vector2<T> v, T f)
+    {
+        return new(v.X / f, v.Y / f);
+    }
+
+    public static Vector2<T> operator +(Vector2<T> v1, Vector2<T> v2)
+    {
+        return new(v1.X + v2.X, v1.Y + v2.Y);
+    }
+
     public static Vector2<T> operator -(Vector2<T> v1, Vector2<T> v2)
     {
         return new(v1.X - v2.X, v1.Y - v2.Y);
+    }
+
+    public static Vector2<T> operator *(Vector2<T> v1, Vector2<T> v2)
+    {
+        return new(v1.X * v2.X, v1.Y * v2.Y);
+    }
+
+    public static Vector2<T> operator /(Vector2<T> v1, Vector2<T> v2)
+    {
+        return new(v1.X / v2.X, v1.Y / v2.Y);
     }
 
     public readonly bool Equals(Vector2<T> other)

@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace Substance.Maths;
 
 public struct Matrix3x2
@@ -9,7 +11,7 @@ public struct Matrix3x2
     public readonly float M31 = 0;
     public readonly float M32 = 0;
 
-    public static Matrix3x2 Make(Vector2<float> position, float rotation, Vector2<float> scale, Vector2<float> size)
+    public static Matrix3x2 Create(Vector2<float> position, Vector2<float> scale, float rotation, Vector2<float> size)
     {
         var sx = size.X * scale.X;
         var sy = size.Y * scale.Y;
@@ -25,10 +27,8 @@ public struct Matrix3x2
         );
     }
 
-    public static Matrix3x2 Make(Vector2<float> position, float rotation, Vector2<float> size)
-    {
-        return Make(position, rotation, Vector2<float>.One, size);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Matrix3x2 Make(Vector2<float> position, float rotation, Vector2<float> size) => Create(position, Vector2<float>.One, rotation, size);
 
     public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
     {
