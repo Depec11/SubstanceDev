@@ -4,6 +4,7 @@ using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
 using Substance.Nodes;
+using Substance.Nodes.Canvas;
 
 namespace Substance;
 
@@ -57,7 +58,13 @@ public class GameEngine : IDisposable
             Color = Color.White
         };
 
+        var label = new Label
+        {
+            Text = "单质"
+        };
+
         spriteRenderer.SetParent(_root);
+        label.SetParent(_root);
 
         Vector2<int> textSize = new();
 

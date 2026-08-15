@@ -1,14 +1,10 @@
 using Substance.Core;
 using Substance.Graphics;
-using Substance.Logging;
-using Substance.Maths;
 
 namespace Substance.Nodes;
 
 public class SpriteRenderer : Node
 {
-    public event Action<PropertyChangedArgs<Texture?>> TextureChanged = delegate {};
-
     public Texture? Texture { get; set
         {
             if (field == value)
@@ -38,8 +34,6 @@ public class SpriteRenderer : Node
         {
             UpdateMatrix(args.NewValue.Size);
         }
-
-        TextureChanged(args);
     }
 
     protected override void OnRenderingOverride(double deltaTime)
