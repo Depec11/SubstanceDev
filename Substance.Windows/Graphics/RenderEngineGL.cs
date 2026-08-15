@@ -43,7 +43,7 @@ public class RenderEngineGL : RenderEngine
 
     internal RenderEngineGL() : base(GraphicApi.OpenGL)
     {
-        _textRenderEngine = new TextRenderEngineFT(new Uri("assets://Substance/Assets/QynFlavorAltCHS-Regular.ttf"), 16);
+        _textRenderEngine = new TextRenderEngineFT(new Uri("assets://Substance/Assets/QynFlavorAltCHS-Regular.ttf"), 2, 16);
 
         var window = Application.MainWindow;
 

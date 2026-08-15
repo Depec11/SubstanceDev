@@ -10,12 +10,15 @@ public unsafe class TextRenderEngineFT : TextRenderEngine
 {
     private readonly FT_LibraryRec_* _library;
     private readonly FT_FaceRec_* _face;
+    private readonly uint _pixelHeight;
     private readonly byte[] _fontData = [];
     private readonly Dictionary<uint, Dictionary<char, GlyphRenderResult>> _glyphCaches= [];
     private uint _fontSize;
 
-    public TextRenderEngineFT(Uri fontPath, uint defaultSize)
+    public TextRenderEngineFT(Uri fontPath, uint pixelHeight, uint defaultSize)
     {
+        _pixelHeight = pixelHeight;
+
         FT_Error error;
 
         FT_LibraryRec_* pLibrary = null;
@@ -188,7 +191,7 @@ public unsafe class TextRenderEngineFT : TextRenderEngine
 
     private bool SetFontSize(uint size)
     {
-        var error = FT_Set_Pixel_Sizes(_face, 0, size);
+        var error = FT_Set_Pixel_Sizes(_face, 0, size * _pixelHeight);
         
         if (error is not FT_Error.FT_Err_Ok)
         {
