@@ -22,18 +22,17 @@ public class SpriteRenderer : Node
 
     public SpriteRenderer()
     {
-        if (Texture is not null)
-        {
-            UpdateMatrix(Texture.Size);
-        }
+        UpdateTransformMatrix();
     }
 
     protected virtual void OnTextureChanged(PropertyChangedArgs<Texture?> args)
     {
-        if (args.NewValue is not null)
-        {
-            UpdateMatrix(args.NewValue.Size);
-        }
+        UpdateTransformMatrix();
+    }
+
+    protected override void OnTransformChanged()
+    {
+        UpdateTransformMatrix();
     }
 
     protected override void OnRenderingOverride(double deltaTime)
@@ -46,6 +45,18 @@ public class SpriteRenderer : Node
         }
 
         DrawTexture(Texture.Tid, Viewport.Current.GetSvp(Matrix), Color.Vector3);
+    }
+
+    private void UpdateTransformMatrix()
+    {
+        if (Texture is null)
+        {
+            UpdateMatrix();
+
+            return;
+        }
+
+        UpdateMatrix(Texture.Size);
     }
 
     protected override void OnDisposeOverride()

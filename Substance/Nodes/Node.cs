@@ -28,6 +28,16 @@ public class Node : NodeBase
     {
         Transform = new Transform(this);
 
+        Transform.ActualPositionChanged += args => OnTransformChanged();
+        Transform.ActualScaleChanged += args => OnTransformChanged();
+        Transform.ActualRotationChanged += args => OnTransformChanged();
+        Transform.PivotChanged += args => OnTransformChanged();
+
+        OnTransformChanged();
+    }
+
+    protected virtual void OnTransformChanged()
+    {
         UpdateMatrix();
     }
 

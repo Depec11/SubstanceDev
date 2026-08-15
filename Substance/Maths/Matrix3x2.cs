@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Substance.Logging;
 
 namespace Substance.Maths;
 
@@ -15,15 +16,23 @@ public struct Matrix3x2
     {
         var sx = size.X * scale.X;
         var sy = size.Y * scale.Y;
-        var cos = MathF.Cos(rotation);
-        var sin = MathF.Sin(rotation);
+        var rad = rotation * MathF.PI / 180f;
+        var cos = MathF.Cos(rad);
+        var sin = MathF.Sin(rad);
         var tx = position.X;
         var ty = position.Y;
 
+        var m11 = sx * cos;
+        var m12 = -sx * sin;
+        var m21 = sy * sin;
+        var m22 = sy * cos;
+        var m31 = tx;
+        var m32 = ty;
+
         return new Matrix3x2(
-            sx * cos,   -sx * sin,
-            sy * sin,    sy * cos,
-            tx,          ty
+            m11,            m12,
+            m21,            m22,
+            m31,            m32
         );
     }
 

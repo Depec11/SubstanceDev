@@ -1,5 +1,4 @@
 using Substance.Audio;
-using Substance.Core;
 using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
@@ -55,15 +54,25 @@ public class GameEngine : IDisposable
         var spriteRenderer = new SpriteRenderer
         {
             Texture = _icon,
-            Color = Color.White
+            Transform =
+            {
+                Position = new Vector2<float>(400.0f, 300.0f),
+                Scale = new Vector2<float>(2.0f),
+                Rotation = 180
+            }
         };
+        spriteRenderer.SetParent(_root);
 
         var label = new Label
         {
-            Text = "单质"
+            Text = "单质",
+            Transform =
+            {
+                Position = new Vector2<float>(400.0f, 300.0f),
+                Scale = new Vector2<float>(2.0f),
+                Rotation = 180
+            }
         };
-
-        spriteRenderer.SetParent(_root);
         label.SetParent(_root);
 
         Vector2<int> textSize = new();
@@ -100,9 +109,9 @@ public class GameEngine : IDisposable
     internal void Render(double deltaTime)
     {
         RenderingServer.Current.BeforeDraw();
-#if DEBUG
-        RenderingServer.Current.DrawTestRect();
-#endif
+// #if DEBUG
+//         RenderingServer.Current.DrawTestRect();
+// #endif
         // RenderingServer.Current.DrawTexture(_icon!.Tid, _viewport.GetSvp(_iconMatrix), s_modulate);
         // RenderingServer.Current.DrawString(_text!.Tid, _viewport.GetSvp(_textMatrix));
         _root.OnRendering(deltaTime);

@@ -13,6 +13,7 @@ public class Transform : ComponentBase<Node>
     public event Action<PropertyChangedArgs<Vector2<float>>> ActualPositionChanged = delegate { };
     public event Action<PropertyChangedArgs<Vector2<float>>> ActualScaleChanged = delegate { };
     public event Action<PropertyChangedArgs<float>> ActualRotationChanged = delegate { };
+    public event Action<PropertyChangedArgs<Vector2<float>>> PivotChanged = delegate { };
 
     public Vector2<float> Position { get; set
         {
@@ -80,6 +81,17 @@ public class Transform : ComponentBase<Node>
             field = value;
             OnActualRotationChanged(new PropertyChangedArgs<float>(old, value));
         } } = 0.0f;
+    public Vector2<float> Pivot { get; set
+        {
+            if (field == value)
+            {
+                return;
+            }
+
+            var old = field;
+            field = value;
+            OnPivotChanged(new PropertyChangedArgs<Vector2<float>>(old, value));
+        } } = Vector2<float>.Zero;
 
     private Transform? _parent;
 
@@ -138,17 +150,25 @@ public class Transform : ComponentBase<Node>
         UpdateActualRotation();
         RotationChanged.Invoke(args);
     }
+
     private void OnActualPositionChanged(PropertyChangedArgs<Vector2<float>> args)
     {
         ActualPositionChanged.Invoke(args);
     }
+
     private void OnActualScaleChanged(PropertyChangedArgs<Vector2<float>> args)
     {
         ActualScaleChanged.Invoke(args);
     }
+
     private void OnActualRotationChanged(PropertyChangedArgs<float> args)
     {
         ActualRotationChanged.Invoke(args);
+    }
+
+    private void OnPivotChanged(PropertyChangedArgs<Vector2<float>> args)
+    {
+        PivotChanged.Invoke(args);
     }
 
     private void UpdateActualPosition()

@@ -69,19 +69,19 @@ public class Viewport
     {
         _vm = Matrix3x2.Make(Position, Rotation, Size);
 
-        var halfWidth = Size.X / 2;
-        var halfHeight = Size.Y / 2;
+        var halfWidth = Size.X / 2.0f;
+        var halfHeight = Size.Y / 2.0f;
 
         _pm = new Matrix3x2(
             1 / halfWidth,  0,
             0,             -1 / halfHeight,
-            -1,              1
+            0,              0
         );
 
         _vp = _vm * _pm;
 
         _svp = new Matrix3x2(
-            1 / halfWidth,  0,
+             1 / halfWidth,  0,
              0,             -1 / halfHeight,
             -1,              1
         );

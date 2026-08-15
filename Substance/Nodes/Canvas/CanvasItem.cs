@@ -24,6 +24,11 @@ public class CanvasItem : Node
         UpdateMatrix(Size);
     }
 
+    protected override void OnTransformChanged()
+    {
+        UpdateMatrix(Size);
+    }
+
     protected virtual void OnSizeChanged(PropertyChangedArgs<Vector2<float>> args)
     {
         SizeChanged.Invoke(args);

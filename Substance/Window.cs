@@ -8,10 +8,10 @@ namespace Substance;
 
 public class Window : IDisposable
 {
-    public event Action<double>? Update;
-    public event Action<double>? Render;
+    public event Action<double> Update = delegate { };
+    public event Action<double> Render = delegate { };
 
-    public event Action<PropertyChangedArgs<Vector2<int>>>? SizeChanged;
+    public event Action<PropertyChangedArgs<Vector2<int>>> SizeChanged = delegate { };
 
     public IntPtr Pointer { get; }
     public Vector2<int> Size { get; set
@@ -28,7 +28,7 @@ public class Window : IDisposable
 
             Log.Info($"窗口大小 从 {oldValue} 变更为 {value}");
 
-            SizeChanged?.Invoke(new(oldValue, value));
+            SizeChanged.Invoke(new(oldValue, value));
         } }
     public string Title { get; set; }
     public float RefreshRate { get; }
@@ -101,8 +101,8 @@ public class Window : IDisposable
                 }
             }
 
-            Update?.Invoke(deltaTime);
-            Render?.Invoke(deltaTime);
+            Update.Invoke(deltaTime);
+            Render.Invoke(deltaTime);
 
             SDL.Delay(delayTime);
         }
