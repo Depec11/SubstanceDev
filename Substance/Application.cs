@@ -56,6 +56,9 @@ public class Application : IDisposable
 
         _disposed = true;
 
+        _mainWindow.Update -= _gameEngine.Update;
+        _mainWindow.Render -= _gameEngine.Render;
+
         _gameEngine.Dispose();
         _mainWindow.Dispose();
 

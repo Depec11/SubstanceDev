@@ -31,9 +31,9 @@ public class Label : CanvasItem
     {
         Font = new Font(this);
 
-        Font.SizeChanged += args => _isDirty = true;
-        Font.ForegroundColorChanged += args => _isDirty = true;
-        Font.BackgroundColorChanged += args => _isDirty = true;
+        Font.SizeChanged += OnFontSizeChanged;
+        Font.ForegroundColorChanged += OnFontColorChanged;
+        Font.BackgroundColorChanged += OnBackgroundColorChanged;
     }
 
     protected override void OnRenderingOverride(double deltaTime)
@@ -54,6 +54,21 @@ public class Label : CanvasItem
         TextChanged.Invoke(args);
     }
 
+    private void OnFontSizeChanged(PropertyChangedArgs<uint> args)
+    {
+        _isDirty = true;
+    }
+
+    private void OnFontColorChanged(PropertyChangedArgs<Color> args)
+    {
+        _isDirty = true;
+    }
+
+    private void OnBackgroundColorChanged(PropertyChangedArgs<Color> args)
+    {
+        _isDirty = true;
+    }
+
     private void UpdateTexture()
     {
         var size = Vector2<int>.Zero;
@@ -64,6 +79,10 @@ public class Label : CanvasItem
     protected override void OnDisposeOverride()
     {
         base.OnDisposeOverride();
+
+        Font.SizeChanged -= OnFontSizeChanged;
+        Font.ForegroundColorChanged -= OnFontColorChanged;
+        Font.BackgroundColorChanged -= OnBackgroundColorChanged;
 
         _texture.Dispose();
 

@@ -44,7 +44,7 @@ public class SpriteRenderer : Node
             return;
         }
 
-        DrawTexture(Texture.Tid, Viewport.Current.GetSvp(Matrix), Color.Vector3);
+        DrawTexture(Texture.Tid, Viewport.Current.GetMvp(Matrix), Color.Vector3);
     }
 
     private void UpdateTransformMatrix()

@@ -1,4 +1,5 @@
 using Substance.Audio;
+using Substance.Core;
 using Substance.Graphics;
 using Substance.Logging;
 using Substance.Maths;
@@ -32,11 +33,7 @@ public class GameEngine : IDisposable
 
         _root.OnEnterTree();
 
-        Application.MainWindow.SizeChanged += (args) =>
-        {
-            // _matrix = Matrix3x2.Make(new Vector2<float>(args.NewValue.X, args.NewValue.Y) / 2, 0, new Vector2<float>(_icon!.Width, _icon!.Height));
-            _viewport.Size = new Vector2<float>(args.NewValue.X, args.NewValue.Y);
-        };
+        Application.MainWindow.SizeChanged += OnWindowSizeChanged;
 
         Log.Info($"[{nameof(GameEngine)}] 初始化完成");
     }
@@ -57,8 +54,6 @@ public class GameEngine : IDisposable
             Transform =
             {
                 Position = new Vector2<float>(400.0f, 300.0f),
-                Scale = new Vector2<float>(2.0f),
-                Rotation = 180
             }
         };
         spriteRenderer.SetParent(_root);
@@ -69,11 +64,18 @@ public class GameEngine : IDisposable
             Transform =
             {
                 Position = new Vector2<float>(400.0f, 300.0f),
-                Scale = new Vector2<float>(2.0f),
-                Rotation = 180
             }
         };
         label.SetParent(_root);
+
+        var camera = new Camera
+        {
+            Transform =
+            {
+                // Position = new Vector2<float>(400.0f, 300.0f),
+            }
+        };
+        camera.SetParent(_root);
 
         Vector2<int> textSize = new();
 
@@ -117,11 +119,20 @@ public class GameEngine : IDisposable
         _root.OnRendering(deltaTime);
         
         RenderingServer.Current.AfterDraw();
+
+        Console.WriteLine($"Viewport position: {Viewport.Current.Position}");
     }
 
     internal void MakeRenderEngine(GraphicApi api)
     {
         _renderingServer.MakeRenderEngine(api);
+    }
+
+    private void OnWindowSizeChanged(PropertyChangedArgs<Vector2<int>> args)
+    {
+        _viewport.Size = new Vector2<float>(args.NewValue.X, args.NewValue.Y);
+
+        RenderingServer.Current.UpdateViewportSize(args.NewValue);
     }
 
     public void Dispose()
@@ -132,6 +143,8 @@ public class GameEngine : IDisposable
         }
 
         _disposed = true;
+
+        Application.MainWindow.SizeChanged -= OnWindowSizeChanged;
 
         _root.ExitTree();
 

@@ -17,8 +17,6 @@ public class RenderEngine : IDisposable
 
         var window = Application.MainWindow;
         _windowPtr = window.Pointer;
-        
-        window.SizeChanged += (args) => OnViewportSizeChangedOverride(args.NewValue);
     }
     
     protected RenderEngine(GraphicApi api = GraphicApi.None)
@@ -27,8 +25,6 @@ public class RenderEngine : IDisposable
 
         var window = Application.MainWindow;
         _windowPtr = window.Pointer;
-        
-        window.SizeChanged += (args) => OnViewportSizeChangedOverride(args.NewValue);
     }
 
     ~RenderEngine()
@@ -65,6 +61,9 @@ public class RenderEngine : IDisposable
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal void UnloadTexture(uint texture) => UnloadTextureOverride(texture);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void UpdateViewportSize(Vector2<int> size) => OnViewportSizeChangedOverride(size);
 
     protected virtual void BeforeDrawOverride() {}
 
@@ -103,6 +102,7 @@ public class RenderEngine : IDisposable
         {
             return;
         }
+
         disposed = true;
         
         OnDisposeOverride();

@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using Substance.Components;
+using Substance.Core;
 using Substance.Graphics;
 using Substance.Maths;
 
@@ -28,11 +29,11 @@ public class Node : NodeBase
     {
         Transform = new Transform(this);
 
-        Transform.ActualPositionChanged += args => OnTransformChanged();
-        Transform.ActualScaleChanged += args => OnTransformChanged();
-        Transform.ActualRotationChanged += args => OnTransformChanged();
-        Transform.PivotChanged += args => OnTransformChanged();
-
+        Transform.ActualPositionChanged += OnTransformPositionChangedOverride;
+        Transform.ActualScaleChanged += OnTransformScaleChangedOverride;
+        Transform.ActualRotationChanged += OnTransformRotationChangedOverride;
+        Transform.PivotChanged += OnTransformPivotChangedOverride;
+        
         OnTransformChanged();
     }
 
@@ -54,5 +55,36 @@ public class Node : NodeBase
     protected void UpdateMatrix(Vector2<int> size)
     {
         _matrix = Transform.GetMatrix(new Vector2<float>(size.X, size.Y));
+    }
+
+    protected virtual void OnTransformPositionChangedOverride(PropertyChangedArgs<Vector2<float>> args)
+    {
+        OnTransformChanged();
+    }
+
+    protected virtual void OnTransformScaleChangedOverride(PropertyChangedArgs<Vector2<float>> args)
+    {
+        OnTransformChanged();
+    }
+
+    protected virtual void OnTransformRotationChangedOverride(PropertyChangedArgs<float> args)
+    {
+        OnTransformChanged();
+    }
+
+    protected virtual void OnTransformPivotChangedOverride(PropertyChangedArgs<Vector2<float>> args)
+    {
+        OnTransformChanged();
+    }
+
+    protected override void OnDisposeOverride()
+    {
+        base.OnDisposeOverride();
+        Transform.ActualPositionChanged -= OnTransformPositionChangedOverride;
+        Transform.ActualScaleChanged -= OnTransformScaleChangedOverride;
+        Transform.ActualRotationChanged -= OnTransformRotationChangedOverride;
+        Transform.PivotChanged -= OnTransformPivotChangedOverride;
+
+        Transform.Dispose();
     }
 }
