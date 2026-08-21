@@ -2,8 +2,20 @@ using System.Numerics;
 
 namespace Substance.Maths;
 
+// [Obsolete($"使用{nameof(Vector2)}")]
 public struct Vector2<T> where T : struct, INumber<T>
 {
+    public static Vector2<T> One => new(T.One);
+    public static Vector2<T> Zero => new(T.Zero);
+
+    public readonly T SquaredLength => X * X + Y * Y;
+    public readonly T Length => (T)(object)Math.Sqrt((double)(object)SquaredLength);
+    public readonly Vector2<T> Normalized { get
+        {
+            var length = Length;
+            return new(X / length, Y / length);
+        } }
+
     public T X = default;
     public T Y = default;
 
@@ -21,8 +33,17 @@ public struct Vector2<T> where T : struct, INumber<T>
         Y = y;
     }
 
-    public static Vector2<T> One => new(T.One);
-    public static Vector2<T> Zero => new(T.Zero);
+    public void Normalize()
+    {
+        var length = Length;
+        X /= length;
+        Y /= length;
+    }
+
+    public readonly T Dot(Vector2<T> other)
+    {
+        return X * other.X + Y * other.Y;
+    }
 
     public static bool operator ==(Vector2<T> a, Vector2<T> b)
     {
@@ -32,6 +53,16 @@ public struct Vector2<T> where T : struct, INumber<T>
     public static bool operator !=(Vector2<T> a, Vector2<T> b)
     {
         return a.X != b.X || a.Y != b.Y;
+    }
+
+    public static Vector2<T> operator +(Vector2<T> v)
+    {
+        return new(v.X, v.Y);
+    }
+
+    public static Vector2<T> operator -(Vector2<T> v)
+    {
+        return new(-v.X, -v.Y);
     }
 
     public static Vector2<T> operator +(Vector2<T> v, T f)
@@ -50,6 +81,26 @@ public struct Vector2<T> where T : struct, INumber<T>
     }
 
     public static Vector2<T> operator /(Vector2<T> v, T f)
+    {
+        return new(v.X / f, v.Y / f);
+    }
+
+    public static Vector2<T> operator +(T f, Vector2<T> v)
+    {
+        return new(v.X + f, v.Y + f);
+    }
+
+    public static Vector2<T> operator -(T f, Vector2<T> v)
+    {
+        return new(v.X - f, v.Y - f);
+    }
+
+    public static Vector2<T> operator *(T f, Vector2<T> v)
+    {
+        return new(v.X * f, v.Y * f);
+    }
+
+    public static Vector2<T> operator /(T f, Vector2<T> v)
     {
         return new(v.X / f, v.Y / f);
     }

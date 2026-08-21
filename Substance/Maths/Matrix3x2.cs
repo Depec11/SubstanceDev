@@ -1,8 +1,8 @@
 using System.Runtime.CompilerServices;
-using Substance.Logging;
 
 namespace Substance.Maths;
 
+// [Obsolete($"使用{nameof(Matrix3x3)}代替")]
 public struct Matrix3x2
 {
     public readonly float M11 = 0;
@@ -37,7 +37,7 @@ public struct Matrix3x2
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Matrix3x2 Make(Vector2<float> position, float rotation, Vector2<float> size) => Create(position, Vector2<float>.One, rotation, size);
+    public static Matrix3x2 Create(Vector2<float> position, float rotation, Vector2<float> size) => Create(position, Vector2<float>.One, rotation, size);
 
     public Matrix3x2(float m11, float m12, float m21, float m22, float m31, float m32)
     {

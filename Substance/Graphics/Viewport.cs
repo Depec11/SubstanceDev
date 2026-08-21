@@ -67,7 +67,7 @@ public class Viewport
 
     private void Update()
     {
-        _vm = Matrix3x2.Make(Position, Rotation, Size);
+        _vm = Matrix3x2.Create(-Position, -Rotation, Vector2<float>.One);
 
         var halfWidth = Size.X / 2.0f;
         var halfHeight = Size.Y / 2.0f;

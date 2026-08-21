@@ -63,7 +63,7 @@ public class GameEngine : IDisposable
             Text = "单质",
             Transform =
             {
-                Position = new Vector2<float>(400.0f, 300.0f),
+                // Position = new Vector2<float>(400.0f, 300.0f),
             }
         };
         label.SetParent(_root);
@@ -72,7 +72,7 @@ public class GameEngine : IDisposable
         {
             Transform =
             {
-                // Position = new Vector2<float>(400.0f, 300.0f),
+                Position = new Vector2<float>(400.0f, 300.0f),
             }
         };
         camera.SetParent(_root);
@@ -89,8 +89,8 @@ public class GameEngine : IDisposable
         }
         else
         {
-            _iconMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(_icon.Width, _icon.Height));
-            _textMatrix = Matrix3x2.Make(Vector2<float>.Zero, 0, new Vector2<float>(textSize.X, textSize.Y));
+            _iconMatrix = Matrix3x2.Create(Vector2<float>.Zero, 0, new Vector2<float>(_icon.Width, _icon.Height));
+            _textMatrix = Matrix3x2.Create(Vector2<float>.Zero, 0, new Vector2<float>(textSize.X, textSize.Y));
         }
 
         await task;
@@ -119,8 +119,6 @@ public class GameEngine : IDisposable
         _root.OnRendering(deltaTime);
         
         RenderingServer.Current.AfterDraw();
-
-        Console.WriteLine($"Viewport position: {Viewport.Current.Position}");
     }
 
     internal void MakeRenderEngine(GraphicApi api)
