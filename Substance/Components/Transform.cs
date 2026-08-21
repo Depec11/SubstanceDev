@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using Substance.Core;
 using Substance.Maths;
@@ -105,7 +106,13 @@ public class Transform : ComponentBase<Node>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Matrix3x2 GetMatrix(Vector2<float> size) => Matrix3x2.Create(ActualPosition, ActualScale, ActualRotation, size);
+    public Matrix3x2 GetMatrix(Vector2<float> size)
+    {
+        var offset = Pivot * size;
+        var position = ActualPosition - offset;
+        
+        return Matrix3x2.Create(position, ActualScale, ActualRotation, size);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3x2 GetMatrix() => GetMatrix(Vector2<float>.One);

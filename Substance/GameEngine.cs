@@ -54,6 +54,7 @@ public class GameEngine : IDisposable
             Transform =
             {
                 Position = new Vector2<float>(400.0f, 300.0f),
+                Pivot = new Vector2<float>(0.5f, 0.5f),
             }
         };
         spriteRenderer.SetParent(_root);
