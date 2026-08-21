@@ -20,8 +20,8 @@ public class Label : CanvasItem
             field = value;
             OnTextChanged(new(old, value));
         } } = string.Empty;
-    
     public Font Font { get; }
+    public bool IsInScene { get; set; } = false;
 
     private readonly Texture _texture = new();
 
@@ -44,7 +44,8 @@ public class Label : CanvasItem
             UpdateTexture();
         }
 
-        DrawString(_texture.Tid, Viewport.Current.GetSvp(Matrix));
+        DrawString(_texture.Tid, IsInScene ? Viewport.Current.GetMvp(Matrix) : Viewport.Current.GetSvp(Matrix));
+
     }
 
     protected virtual void OnTextChanged(PropertyChangedArgs<string> args)

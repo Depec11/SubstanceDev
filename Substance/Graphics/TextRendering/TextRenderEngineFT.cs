@@ -246,27 +246,28 @@ public unsafe class TextRenderEngineFT : TextRenderEngine
         }
 
         var glyph = _face->glyph;
-        
+
         var bitmap = glyph->bitmap;
         var width = bitmap.width;
         var height = bitmap.rows;
-        var data = new byte[width * height];
+        var advanceX = (int)(glyph->advance.x >> 6);
 
         if (bitmap.buffer is null || width <= 0 || height <= 0)
         {
-            Log.Error($"[{nameof(TextRenderEngineFT)}] 获取字符位图失败：{error}");
-            return GlyphRenderResult.Empty;
+            // 空格、Tab 等不可见字符没有位图，但 advance 仍有效，直接返回零尺寸结果
+            return new GlyphRenderResult([], 0, 0, 0, 0, advanceX);
         }
 
+        var data = new byte[width * height];
         Marshal.Copy((IntPtr)bitmap.buffer, data, 0, data.Length);
 
         var res = new GlyphRenderResult(
-            data, 
-            width, 
-            height, 
-            glyph->bitmap_left, 
-            glyph->bitmap_top, 
-            (int)(glyph->advance.x >> 6)
+            data,
+            width,
+            height,
+            glyph->bitmap_left,
+            glyph->bitmap_top,
+            advanceX
         );
 
         if (cache is null)

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Substance.Logging;
 
 namespace Substance.Nodes;
@@ -20,11 +21,13 @@ public abstract class NodeBase : IDisposable
         Dispose();
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void AddChild(NodeBase child)
     {
         child.SetParent(this);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void RemoveChild(NodeBase child)
     {
         child.SetParent(null);
@@ -65,6 +68,14 @@ public abstract class NodeBase : IDisposable
         }
 
         SetParent(null);
+    }
+
+    public void ClearChildren()
+    {
+        foreach (var child in _children)
+        {
+            RemoveChild(child);
+        }
     }
 
     // public void NotifyForward(NotificationType type)
