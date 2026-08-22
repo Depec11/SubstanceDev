@@ -49,8 +49,6 @@ public class MainActivity : SDLActivity
         var app = new AndroidApplication();
         var gameLoop = new MainGameLoop();
 
-        gameLoop.Dispose();
-
         app.Initialize();
 
         app.Exec();

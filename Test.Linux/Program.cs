@@ -9,8 +9,6 @@ internal class Program
         var app = new LinuxApplication();
         var gameLoop = new MainGameLoop();
 
-        gameLoop.Dispose();
-
         app.Initialize();
 
         app.Exec();

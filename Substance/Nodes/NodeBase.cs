@@ -43,6 +43,10 @@ public abstract class NodeBase : IDisposable
 
         _parent?._children.Remove(this);
         _parent = parent;
+        if (this is Node node)
+        {
+            node.Transform.SetParent(parent);
+        }
         parent?._children.Add(this);
 
         var nowInTree = parent is not null && parent._isInTree;

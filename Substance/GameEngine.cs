@@ -71,6 +71,7 @@ public class GameEngine : IDisposable
     public void SetScene(Node? scene)
     {
         _root.ClearChildren();
+        
         scene?.SetParent(_root);
     }
 
@@ -93,6 +94,8 @@ public class GameEngine : IDisposable
     {
         var icon = new Texture(new Uri("assets://Substance/Assets/Icon.png"));
 
+        var isAndroid = OperatingSystem.IsAndroid();
+
         _splash = new Node();
 
         var spriteRenderer = new SpriteRenderer
@@ -102,6 +105,7 @@ public class GameEngine : IDisposable
             {
                 Position = new Vector2<float>(400.0f, 300.0f),
                 Pivot = new Vector2<float>(0.5f, 0.5f),
+                Scale = isAndroid ? new Vector2<float>(2.0f) : Vector2<float>.One,
             }
         };
         spriteRenderer.SetParent(_splash);
@@ -111,8 +115,9 @@ public class GameEngine : IDisposable
             Text = "单质 - Substance",
             Transform =
             {
-                Position = new Vector2<float>(400.0f, 300.0f + 96.0f),
-                Pivot = new Vector2<float>(0.5f, 0.5f),
+                Position = new Vector2<float>(400.0f, 300.0f + (isAndroid ? 128.0f : 64.0f)),
+                Pivot = new Vector2<float>(0.5f, 0.0f),
+                Scale = isAndroid ? new Vector2<float>(2.0f) : Vector2<float>.One,
             },
             IsInScene = true,
             Font =

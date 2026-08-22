@@ -98,17 +98,13 @@ public class Transform : ComponentBase<Node>
 
     public Transform(Node owner) : base(owner)
     {
-        if (owner.Parent is not Node node)
-        {
-            return;
-        }
-        SetParent(node.Transform);
+        SetParent(owner.Parent);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3x2 GetMatrix(Vector2<float> size)
     {
-        var offset = Pivot * size;
+        var offset = Pivot * size * ActualScale;
         var position = ActualPosition - offset;
         
         return Matrix3x2.Create(position, ActualScale, ActualRotation, size);
@@ -117,8 +113,16 @@ public class Transform : ComponentBase<Node>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3x2 GetMatrix() => GetMatrix(Vector2<float>.One);
 
-    internal void SetParent(Transform? parent)
+    internal void SetParent(NodeBase? parentNodeBase)
     {
+        if (parentNodeBase is not Node parentNode)
+        {
+            _parent = null;
+            return;
+        }
+
+        var parent = parentNode.Transform;
+
         if (_parent == parent)
         {
             return;
@@ -188,6 +192,14 @@ public class Transform : ComponentBase<Node>
         {
             ActualPosition = _parent.ActualPosition + Position;
         }
+
+        foreach (var child in Owner.Children)
+        {
+            if (child is Node node)
+            {
+                node.Transform.UpdateActualPosition();
+            }
+        }
     }
 
     private void UpdateActualScale()
@@ -200,6 +212,14 @@ public class Transform : ComponentBase<Node>
         {
             ActualScale = _parent.ActualScale * Scale;
         }
+
+        foreach (var child in Owner.Children)
+        {
+            if (child is Node node)
+            {
+                node.Transform.UpdateActualScale();
+            }
+        }
     }
 
     private void UpdateActualRotation()
@@ -211,6 +231,14 @@ public class Transform : ComponentBase<Node>
         else
         {
             ActualRotation = _parent.ActualRotation + Rotation;
+        }
+
+        foreach (var child in Owner.Children)
+        {
+            if (child is Node node)
+            {
+                node.Transform.UpdateActualRotation();
+            }
         }
     }
 }
