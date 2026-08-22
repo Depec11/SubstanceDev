@@ -21,7 +21,7 @@ public class Application : IDisposable
         _mainWindow = new(options);
 
         _gameEngine = new GameEngine(new RenderingServer(createRenderEngine));
-        _gameEngine.Intialized += OnInitializedOverride;
+        _gameEngine.Initialized += OnInitializedOverride;
 
         _mainWindow.Update += _gameEngine.Update;
         _mainWindow.Render += _gameEngine.Render;
@@ -34,6 +34,11 @@ public class Application : IDisposable
         Dispose();
     }
 
+    public void Initialize()
+    {
+        _gameEngine.Initialize();
+    }
+
     public void Exec()
     {
         _mainWindow?.Exec();
@@ -44,10 +49,11 @@ public class Application : IDisposable
     protected virtual void OnCreatedOverride()
     {
         _gameEngine.MakeRenderEngine(_mainWindow.GraphicApi);
-        _ = _gameEngine.Initialize();
     }
 
-    protected virtual void OnInitializedOverride() { }
+    protected virtual void OnInitializedOverride()
+    {
+    }
 
     public void Dispose()
     {
@@ -58,7 +64,7 @@ public class Application : IDisposable
 
         _disposed = true;
 
-        _gameEngine.Intialized -= OnInitializedOverride;
+        _gameEngine.Initialized -= OnInitializedOverride;
 
         _mainWindow.Update -= _gameEngine.Update;
         _mainWindow.Render -= _gameEngine.Render;

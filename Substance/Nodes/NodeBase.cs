@@ -1,5 +1,4 @@
 using System.Runtime.CompilerServices;
-using Substance.Logging;
 
 namespace Substance.Nodes;
 
@@ -72,7 +71,7 @@ public abstract class NodeBase : IDisposable
 
     public void ClearChildren()
     {
-        foreach (var child in _children)
+        foreach (var child in _children.ToList())
         {
             RemoveChild(child);
         }
