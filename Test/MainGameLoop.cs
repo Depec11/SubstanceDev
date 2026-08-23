@@ -33,12 +33,11 @@ public class MainGameLoop : GameLoop
             Transform =
             {
                 Position = Viewport.Current.Size / 2.0f,
+                Scale = OperatingSystem.IsAndroid() ? new Vector2<float>(2.0f) : Vector2<float>.One,
                 Origin = new Vector2<float>(0.5f),
             },
             Size = new Vector2<float>(128, 64),
             Text = "播放",
-            // IsInScene = true,
-            // FontSize = 32,
         };
 
         _button.Clicked += OnButtonClicked;

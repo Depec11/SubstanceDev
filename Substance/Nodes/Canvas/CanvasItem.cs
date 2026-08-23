@@ -169,7 +169,7 @@ public class CanvasItem : Node
         // }
         // var position = actualPosition - Transform.Origin * Size * Transform.ActualScale;
         var position = Transform.ActualPosition - Transform.Origin * Size * Transform.ActualScale;
-        _rect = new(position.X, position.Y, position.X + Size.X, position.Y + Size.Y);
+        _rect = new(position.X, position.Y, position.X + Size.X * Transform.ActualScale.X, position.Y + Size.Y * Transform.ActualScale.Y);
     }
 
     private void UpdateCanvasStatus()
