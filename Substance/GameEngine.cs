@@ -1,6 +1,7 @@
 using Substance.Audio;
 using Substance.Core;
 using Substance.Graphics;
+using Substance.Inputs;
 using Substance.Logging;
 using Substance.Maths;
 using Substance.Nodes;
@@ -31,7 +32,7 @@ public class GameEngine : IDisposable
 
         _root.OnEnterTree();
 
-        Application.MainWindow.SizeChanged += OnWindowSizeChanged;
+        Application.MainWindow.Resized += OnWindowSizeChanged;
     }
 
     internal void Initialize()
@@ -40,7 +41,7 @@ public class GameEngine : IDisposable
         LoadSplash();
     }
 
-    internal void Update(double deltaTime)
+    internal void OnUpdate(double deltaTime)
     {
         lock(_threadLock)
         {
@@ -53,7 +54,7 @@ public class GameEngine : IDisposable
         }
     }
 
-    internal void Render(double deltaTime)
+    internal void OnRender(double deltaTime)
     {
         lock(_threadLock)
         {
@@ -61,6 +62,12 @@ public class GameEngine : IDisposable
             _root.OnRendering(deltaTime);
             RenderingServer.Current.AfterDraw();
         }
+    }
+
+    internal void OnInput(InputEvent inputEvent)
+    {
+        var lastNode = _root.GetLastChildIterator();
+        lastNode?.HandleInput(inputEvent);
     }
 
     internal void MakeRenderEngine(GraphicApi api)
@@ -104,7 +111,7 @@ public class GameEngine : IDisposable
             Transform =
             {
                 Position = new Vector2<float>(400.0f, 300.0f),
-                Pivot = new Vector2<float>(0.5f, 0.5f),
+                Origin = new Vector2<float>(0.5f, 0.5f),
                 Scale = isAndroid ? new Vector2<float>(2.0f) : Vector2<float>.One,
             }
         };
@@ -116,7 +123,7 @@ public class GameEngine : IDisposable
             Transform =
             {
                 Position = new Vector2<float>(400.0f, 300.0f + (isAndroid ? 128.0f : 64.0f)),
-                Pivot = new Vector2<float>(0.5f, 0.0f),
+                Origin = new Vector2<float>(0.5f, 0.0f),
                 Scale = isAndroid ? new Vector2<float>(2.0f) : Vector2<float>.One,
             },
             IsInScene = true,
@@ -181,7 +188,7 @@ public class GameEngine : IDisposable
 
         _disposed = true;
 
-        Application.MainWindow.SizeChanged -= OnWindowSizeChanged;
+        Application.MainWindow.Resized -= OnWindowSizeChanged;
 
         _splash?.Dispose();
 

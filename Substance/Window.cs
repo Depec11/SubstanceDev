@@ -1,6 +1,7 @@
 using SDL3;
 using Substance.Core;
 using Substance.Graphics;
+using Substance.Inputs;
 using Substance.Logging;
 using Substance.Maths;
 
@@ -10,8 +11,9 @@ public class Window : IDisposable
 {
     public event Action<double> Update = delegate { };
     public event Action<double> Render = delegate { };
+    public event Action<InputEvent> Input = delegate { };
 
-    public event Action<PropertyChangedArgs<Vector2<int>>> SizeChanged = delegate { };
+    public event Action<PropertyChangedArgs<Vector2<int>>> Resized = delegate { };
 
     public IntPtr Pointer { get; }
     public Vector2<int> Size { get; set
@@ -28,7 +30,7 @@ public class Window : IDisposable
 
             Log.Info($"窗口大小 从 {oldValue} 变更为 {value}");
 
-            SizeChanged.Invoke(new(oldValue, value));
+            Resized.Invoke(new(oldValue, value));
         } }
     public string Title { get; set; }
     public float RefreshRate { get; }
@@ -68,12 +70,6 @@ public class Window : IDisposable
         RefreshRate = GetRefreshRate();
     
         Log.Info($"窗口创建成功: {Title} {Size} {RefreshRate}Hz");
-
-// #if ANDROID
-//         SDL.GetDisplayBounds(SDL.GetDisplayForWindow(Pointer), out var displayBounds);
-
-//         Size = new(displayBounds.W, displayBounds.H);
-// #endif
     }
 
     ~Window()
@@ -98,6 +94,12 @@ public class Window : IDisposable
                     case SDL.EventType.WindowResized:
                         Size = new(e.Window.Data1, e.Window.Data2);
                         break;
+                }
+
+                var inputEvent = InputEvent.Create(e);
+                if (inputEvent != null)
+                {
+                    Input.Invoke(inputEvent);
                 }
             }
 

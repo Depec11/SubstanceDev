@@ -14,7 +14,7 @@ public class Transform : ComponentBase<Node>
     public event Action<PropertyChangedArgs<Vector2<float>>> ActualPositionChanged = delegate { };
     public event Action<PropertyChangedArgs<Vector2<float>>> ActualScaleChanged = delegate { };
     public event Action<PropertyChangedArgs<float>> ActualRotationChanged = delegate { };
-    public event Action<PropertyChangedArgs<Vector2<float>>> PivotChanged = delegate { };
+    public event Action<PropertyChangedArgs<Vector2<float>>> OriginChanged = delegate { };
 
     public Vector2<float> Position { get; set
         {
@@ -82,7 +82,7 @@ public class Transform : ComponentBase<Node>
             field = value;
             OnActualRotationChanged(new PropertyChangedArgs<float>(old, value));
         } } = 0.0f;
-    public Vector2<float> Pivot { get; set
+    public Vector2<float> Origin { get; set
         {
             if (field == value)
             {
@@ -91,7 +91,7 @@ public class Transform : ComponentBase<Node>
 
             var old = field;
             field = value;
-            OnPivotChanged(new PropertyChangedArgs<Vector2<float>>(old, value));
+            OnOriginChanged(new PropertyChangedArgs<Vector2<float>>(old, value));
         } } = Vector2<float>.Zero;
 
     private Transform? _parent;
@@ -104,7 +104,7 @@ public class Transform : ComponentBase<Node>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Matrix3x2 GetMatrix(Vector2<float> size)
     {
-        var offset = Pivot * size * ActualScale;
+        var offset = Origin * size * ActualScale;
         var position = ActualPosition - offset;
         
         return Matrix3x2.Create(position, ActualScale, ActualRotation, size);
@@ -177,9 +177,9 @@ public class Transform : ComponentBase<Node>
         ActualRotationChanged.Invoke(args);
     }
 
-    private void OnPivotChanged(PropertyChangedArgs<Vector2<float>> args)
+    private void OnOriginChanged(PropertyChangedArgs<Vector2<float>> args)
     {
-        PivotChanged.Invoke(args);
+        OriginChanged.Invoke(args);
     }
 
     private void UpdateActualPosition()

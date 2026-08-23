@@ -23,8 +23,9 @@ public class Application : IDisposable
         _gameEngine = new GameEngine(new RenderingServer(createRenderEngine));
         _gameEngine.Initialized += OnInitializedOverride;
 
-        _mainWindow.Update += _gameEngine.Update;
-        _mainWindow.Render += _gameEngine.Render;
+        _mainWindow.Update += _gameEngine.OnUpdate;
+        _mainWindow.Render += _gameEngine.OnRender;
+        _mainWindow.Input += _gameEngine.OnInput;
 
         OnCreatedOverride();
     }
@@ -66,8 +67,9 @@ public class Application : IDisposable
 
         _gameEngine.Initialized -= OnInitializedOverride;
 
-        _mainWindow.Update -= _gameEngine.Update;
-        _mainWindow.Render -= _gameEngine.Render;
+        _mainWindow.Update -= _gameEngine.OnUpdate;
+        _mainWindow.Render -= _gameEngine.OnRender;
+        _mainWindow.Input -= _gameEngine.OnInput;
 
         _gameEngine.Dispose();
         _mainWindow.Dispose();

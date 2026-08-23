@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using Substance.Inputs;
 
 namespace Substance.Nodes;
 
@@ -18,6 +19,84 @@ public abstract class NodeBase : IDisposable
     ~NodeBase()
     {
         Dispose();
+    }
+
+    internal void OnEnterTree()
+    {
+        _isInTree = true;
+
+        OnEnterTreeOverride();
+
+        foreach (var child in _children)
+        {
+            child.OnEnterTree();
+        }
+    }
+
+    internal void OnExitTree()
+    {
+        _isInTree = false;
+
+        foreach (var child in _children)
+        {
+            child.OnExitTree();
+
+            child.Dispose();
+        }
+
+        OnExitTreeOverride();
+
+        Dispose();
+    }
+
+    internal void OnUpdate(double deltaTime)
+    {
+        OnUpdateOverride(deltaTime);
+
+        foreach (var child in _children)
+        {
+            child.OnUpdate(deltaTime);
+        }
+    }
+
+    internal void OnRendering(double deltaTime)
+    {
+        OnRenderingOverride(deltaTime);
+
+        foreach (var child in _children)
+        {
+            child.OnRendering(deltaTime);
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void HandleInput(InputEvent inputEvent)
+    {
+        OnInputOverride(inputEvent);
+
+        if (inputEvent.IsHandled)
+        {
+            return;
+        }
+        
+        var siblings = _parent?._children ?? [];
+        
+        foreach (var sibling in siblings)
+        {
+            if (sibling == this)
+            {
+                continue;
+            }
+
+            sibling.OnInputOverride(inputEvent);
+
+            if (inputEvent.IsHandled)
+            {
+                return;
+            }
+        }
+
+        _parent?.HandleInput(inputEvent);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -81,6 +160,33 @@ public abstract class NodeBase : IDisposable
         }
     }
 
+    public NodeBase? GetLastChild()
+    {
+        return _children.LastOrDefault();
+    }
+
+    public NodeBase? GetLastChildIterator()
+    {
+        var res = GetLastChild();
+
+        while (res is not null)
+        {
+            var lastChild = res.GetLastChild();
+
+            if (lastChild is null)
+            {
+                return res;
+                
+            }
+            else
+            {
+                res = lastChild;
+            }
+        }
+
+        return null;
+    }
+
     // public void NotifyForward(NotificationType type)
     // {
     //     HandleNotification(type);
@@ -101,52 +207,6 @@ public abstract class NodeBase : IDisposable
 
     // protected virtual void HandleNotificationOverride(NotificationType type) {}
 
-    internal void OnEnterTree()
-    {
-        _isInTree = true;
-
-        OnEnterTreeOverride();
-
-        foreach (var child in _children)
-        {
-            child.OnEnterTree();
-        }
-    }
-
-    internal void OnExitTree()
-    {
-        _isInTree = false;
-
-        foreach (var child in _children)
-        {
-            child.OnExitTree();
-        }
-
-        OnExitTreeOverride();
-
-        Dispose();
-    }
-
-    internal void OnUpdate(double deltaTime)
-    {
-        OnUpdateOverride(deltaTime);
-
-        foreach (var child in _children)
-        {
-            child.OnUpdate(deltaTime);
-        }
-    }
-
-    internal void OnRendering(double deltaTime)
-    {
-        OnRenderingOverride(deltaTime);
-
-        foreach (var child in _children)
-        {
-            child.OnRendering(deltaTime);
-        }
-    }
-
     protected virtual void OnEnterTreeOverride() {}
 
     protected virtual void OnExitTreeOverride() {}
@@ -156,6 +216,8 @@ public abstract class NodeBase : IDisposable
     protected virtual void OnRenderingOverride(double deltaTime) {}
 
     protected virtual void OnParentChangedOverride() {}
+
+    protected virtual void OnInputOverride(InputEvent inputEvent) {}
 
     protected virtual void OnDisposeOverride() {}
 

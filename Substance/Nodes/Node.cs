@@ -23,7 +23,7 @@ public class Node : NodeBase
     protected static void RenderString(string text, uint texture, uint fontSize, Color foregroundColor, Color backgroundColor, ref Vector2<int> size) => RenderingServer.Current.RenderString(text, texture, fontSize, foregroundColor, backgroundColor, ref size);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected static void DrawString(uint texture, in Matrix3x2 transform) => RenderingServer.Current.DrawString(texture, transform);
+    protected static void DrawString(uint texture, in Matrix3x2 transform, in Vector3<float> modulate) => RenderingServer.Current.DrawString(texture, transform, modulate);
 
     public Node() : base()
     {
@@ -32,7 +32,7 @@ public class Node : NodeBase
         Transform.ActualPositionChanged += OnTransformPositionChangedOverride;
         Transform.ActualScaleChanged += OnTransformScaleChangedOverride;
         Transform.ActualRotationChanged += OnTransformRotationChangedOverride;
-        Transform.PivotChanged += OnTransformPivotChangedOverride;
+        Transform.OriginChanged += OnTransformOriginChangedOverride;
         
         OnTransformChanged();
     }
@@ -72,7 +72,7 @@ public class Node : NodeBase
         OnTransformChanged();
     }
 
-    protected virtual void OnTransformPivotChangedOverride(PropertyChangedArgs<Vector2<float>> args)
+    protected virtual void OnTransformOriginChangedOverride(PropertyChangedArgs<Vector2<float>> args)
     {
         OnTransformChanged();
     }
@@ -83,7 +83,7 @@ public class Node : NodeBase
         Transform.ActualPositionChanged -= OnTransformPositionChangedOverride;
         Transform.ActualScaleChanged -= OnTransformScaleChangedOverride;
         Transform.ActualRotationChanged -= OnTransformRotationChangedOverride;
-        Transform.PivotChanged -= OnTransformPivotChangedOverride;
+        Transform.OriginChanged -= OnTransformOriginChangedOverride;
 
         Transform.Dispose();
     }

@@ -209,9 +209,9 @@ public class RenderEngineGLES : RenderEngine
         _gl.BindTexture(TextureTarget.Texture2D, 0);
     }
 
-    protected override void DrawStringOverride(uint texture, in Matrix3x2 transform)
+    protected override void DrawStringOverride(uint texture, in Matrix3x2 transform, in Vector3<float> modulate)
     {
-        DrawTextureOverride(texture, transform, Vector3<float>.One);
+        DrawTextureOverride(texture, transform, modulate);
     }
 
     protected override void LoadShaderOverride(uint shader, ShaderType type, string source)
